@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "name": "Dell Inspiron 3640",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720116438/SwapConnect/shop/Apple-iphone15_1_t8iulw.png",
+    "price": 799,
+    "rating": 4
+  },
+  {
+    "id": 2,
+    "name": "Apple iPhone 15",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720116438/SwapConnect/shop/Apple-iphone15_phftla.png",
+    "price": "999",
+    "rating": 5
+  },
+  {
+    "id": 3,
+    "name": "Apple iPhone 14",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720116439/SwapConnect/shop/apple-iphone-15-1_1_o5g37c.png",
+    "price": "899",
+    "rating": 4
+  },
+  {
+    "id": 4,
+    "name": "Apple MacBook Pro 2019",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189168/SwapConnect/shop/recently-uploaded3_a0fi78.png",
+    "price": "1299",
+    "rating": 3
+  },
+  {
+    "id": 5,
+    "name": "iPhone 11 Pro [Used]",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720116438/SwapConnect/shop/Apple-iphone15_1_t8iulw.png",
+    "price": "599",
+    "rating": 4
+  },
+  {
+    "id": 6,
+    "name": "Apple iPhone 13 Pro",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720116438/SwapConnect/shop/Apple-iphone15_phftla.png",
+    "price": "899",
+    "rating": 5
+  },
+  {
+    "id": 7,
+    "name": "HP Pavilion x360",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189168/SwapConnect/shop/recently-uploaded3_a0fi78.png",
+    "price": "1100",
+    "rating": 4
+  },
+  {
+    "id": 8,
+    "name": "Samsung Galaxy S21",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720116439/SwapConnect/shop/apple-iphone-15-1_1_o5g37c.png",
+    "price": "750",
+    "rating": 4
+  },
+  {
+    "id": 9,
+    "name": "MacBook Air M1",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189168/SwapConnect/shop/recently-uploaded3_a0fi78.png",
+    "price": "1200",
+    "rating": 5
+  },
+  {
+    "id": 10,
+    "name": "Google Pixel 6",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720116439/SwapConnect/shop/apple-iphone-15-1_1_o5g37c.png",
+    "price": "680",
+    "rating": 4
+  },
+  {
+    "id": 11,
+    "name": "Dell XPS 13",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189168/SwapConnect/shop/recently-uploaded3_a0fi78.png",
+    "price": "1300",
+    "rating": 5
+  },
+  {
+    "id": 12,
+    "name": "OnePlus 9 Pro",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720116438/SwapConnect/shop/Apple-iphone15_phftla.png",
+    "price": "720",
+    "rating": 4
+  }
+]

@@ -1,0 +1,194 @@
+[
+  {
+    "id": "ts_001",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573356/SwapConnect/home/top-sales/top-sales7_iiabww.png",
+    "name": "Product 1",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_002",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573356/SwapConnect/home/top-sales/top-sales6_way5ui.png",
+    "name": "Product 2",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_003",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573355/SwapConnect/home/top-sales/top-sales3_bfosjv.png",
+    "name": "Product 3",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_004",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573355/SwapConnect/home/top-sales/top-sales5_axuv1e.png",
+    "name": "Product 4",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_005",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573354/SwapConnect/home/top-sales/top-sales2_udbwlz.png",
+    "name": "Product 5",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_006",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573354/SwapConnect/home/top-sales/top-sales1_pcf1h6.png",
+    "name": "Product 6",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_007",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573353/SwapConnect/home/top-sales/top-sales-4_ocsctw.png",
+    "name": "Product 7",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_008",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573353/SwapConnect/home/top-sales/top-sales-4_ocsctw.png",
+    "name": "Product 8",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_009",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573356/SwapConnect/home/top-sales/top-sales7_iiabww.png",
+    "name": "Product 9",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_010",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573356/SwapConnect/home/top-sales/top-sales6_way5ui.png",
+    "name": "Product 10",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_011",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573355/SwapConnect/home/top-sales/top-sales3_bfosjv.png",
+    "name": "Product 11",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_012",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573355/SwapConnect/home/top-sales/top-sales5_axuv1e.png",
+    "name": "Product 12",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_013",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573354/SwapConnect/home/top-sales/top-sales2_udbwlz.png",
+    "name": "Product 13",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_014",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573354/SwapConnect/home/top-sales/top-sales1_pcf1h6.png",
+    "name": "Product 14",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_015",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573353/SwapConnect/home/top-sales/top-sales-4_ocsctw.png",
+    "name": "Product 15",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_016",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573353/SwapConnect/home/top-sales/top-sales-4_ocsctw.png",
+    "name": "Product 16",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_017",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573356/SwapConnect/home/top-sales/top-sales7_iiabww.png",
+    "name": "Product 17",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_018",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573356/SwapConnect/home/top-sales/top-sales6_way5ui.png",
+    "name": "Product 18",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_019",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573355/SwapConnect/home/top-sales/top-sales3_bfosjv.png",
+    "name": "Product 19",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_020",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573355/SwapConnect/home/top-sales/top-sales5_axuv1e.png",
+    "name": "Product 20",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_021",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573354/SwapConnect/home/top-sales/top-sales2_udbwlz.png",
+    "name": "Product 21",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_022",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573354/SwapConnect/home/top-sales/top-sales1_pcf1h6.png",
+    "name": "Product 22",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_023",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573353/SwapConnect/home/top-sales/top-sales-4_ocsctw.png",
+    "name": "Product 23",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_024",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573353/SwapConnect/home/top-sales/top-sales-4_ocsctw.png",
+    "name": "Product 24",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_025",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573356/SwapConnect/home/top-sales/top-sales7_iiabww.png",
+    "name": "Product 25",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_026",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573356/SwapConnect/home/top-sales/top-sales6_way5ui.png",
+    "name": "Product 26",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_027",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573355/SwapConnect/home/top-sales/top-sales3_bfosjv.png",
+    "name": "Product 27",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_028",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573355/SwapConnect/home/top-sales/top-sales5_axuv1e.png",
+    "name": "Product 28",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_029",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573354/SwapConnect/home/top-sales/top-sales2_udbwlz.png",
+    "name": "Product 29",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_030",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573354/SwapConnect/home/top-sales/top-sales1_pcf1h6.png",
+    "name": "Product 30",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_031",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573353/SwapConnect/home/top-sales/top-sales-4_ocsctw.png",
+    "name": "Product 31",
+    "price": "400.00"
+  },
+  {
+    "id": "ts_032",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573353/SwapConnect/home/top-sales/top-sales-4_ocsctw.png",
+    "name": "Product 32",
+    "price": "400.00"
+  }
+]

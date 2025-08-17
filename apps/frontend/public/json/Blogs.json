@@ -1,0 +1,20 @@
+[
+  {
+    "id": "1",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573351/SwapConnect/home/blogs/blog1_sn1aky.png",
+    "title": "Top Accessories to Boost Your Productivity",
+    "excerpt": "Discover the must-have accessories for your devices. From wireless keyboards to ergonomic mice, learn how the right accessories can enhance your workflow and comfort every day."
+  },
+  {
+    "id": "2",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573351/SwapConnect/home/blogs/blog2_dd0zfx.png",
+    "title": "Why the MacBook Remains a Creative Favorite",
+    "excerpt": "Explore the features that make the MacBook a top choice for designers, developers, and creators. We break down performance, design, and the Apple ecosystem advantage."
+  },
+  {
+    "id": "3",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1719573351/SwapConnect/home/blogs/blog3_xdsbqq.png",
+    "title": "Choosing the Right Laptop for Your Needs",
+    "excerpt": "Not sure which laptop to buy? Our guide covers the key factors to consider, from portability and battery life to performance and price, so you can make the best decision."
+  }
+]

@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+:root {
+  --font-sans: var(--font-inter);
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  @apply bg-[var(--foreground)] text-[var(--background)];
+
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.input {
+  @apply w-full px-3 py-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400;
+}

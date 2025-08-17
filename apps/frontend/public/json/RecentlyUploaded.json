@@ -1,0 +1,167 @@
+[
+  {
+    "id": "prod_1",
+    "name": "Laptop A",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189168/SwapConnect/shop/recently-uploaded3_a0fi78.png",
+    "price": "₦500",
+    "description": "A high-performance laptop.",
+    "availability": "in stock",
+    "stock": 10,
+    "isTopSale": true,
+    "tag": "Top sale"
+  },
+  {
+    "id": "prod_2",
+    "name": "Phone B",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189168/SwapConnect/shop/recently-uploaded2_zh8dzl.png",
+    "price": "₦300",
+    "description": "An excellent smartphone.",
+    "availability": "out of stock",
+    "stock": 0,
+    "isTopSale": false,
+    "tag": "New"
+  },
+  {
+    "id": "prod_3",
+    "name": "Tablet C",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189167/SwapConnect/shop/recently-uploaded_zroq4s.png",
+    "price": "₦200",
+    "description": "A versatile tablet.",
+    "availability": "in stock",
+    "stock": 5,
+    "isTopSale": false,
+    "tag": "Top sale"
+  },
+  {
+    "id": "prod_4",
+    "name": "Headphones D",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189168/SwapConnect/shop/recently-uploaded3_a0fi78.png",
+    "price": "₦100",
+    "description": "High-quality sound.",
+    "availability": "in stock",
+    "stock": 15,
+    "isTopSale": true,
+    "tag": "New"
+  },
+  {
+    "id": "prod_5",
+    "name": "Smartwatch E",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189168/SwapConnect/shop/recently-uploaded2_zh8dzl.png",
+    "price": "₦150",
+    "description": "Track your fitness.",
+    "availability": "out of stock",
+    "stock": 0,
+    "isTopSale": false,
+    "tag": "Top sale"
+  },
+  {
+    "id": "prod_6",
+    "name": "Camera F",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189167/SwapConnect/shop/recently-uploaded_zroq4s.png",
+    "price": "₦600",
+    "description": "Capture your moments.",
+    "availability": "in stock",
+    "stock": 8,
+    "isTopSale": true,
+    "tag": "New"
+  },
+  {
+    "id": "prod_7",
+    "name": "Speaker G",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189168/SwapConnect/shop/recently-uploaded3_a0fi78.png",
+    "price": "₦120",
+    "description": "Crisp sound quality.",
+    "availability": "out of stock",
+    "stock": 0,
+    "isTopSale": false,
+    "tag": "Top sale"
+  },
+  {
+    "id": "prod_8",
+    "name": "Monitor H",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189168/SwapConnect/shop/recently-uploaded2_zh8dzl.png",
+    "price": "₦250",
+    "description": "High-resolution display.",
+    "availability": "in stock",
+    "stock": 12,
+    "isTopSale": true,
+    "tag": "New"
+  },
+  {
+    "id": "prod_9",
+    "name": "Keyboard I",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189167/SwapConnect/shop/recently-uploaded_zroq4s.png",
+    "price": "₦50",
+    "description": "Mechanical keyboard.",
+    "availability": "in stock",
+    "stock": 7,
+    "isTopSale": false,
+    "tag": "Top sale"
+  },
+  {
+    "id": "prod_10",
+    "name": "Mouse J",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189168/SwapConnect/shop/recently-uploaded3_a0fi78.png",
+    "price": "₦30",
+    "description": "Ergonomic mouse.",
+    "availability": "out of stock",
+    "stock": 0,
+    "isTopSale": false,
+    "tag": "New"
+  },
+  {
+    "id": "prod_11",
+    "name": "Router K",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189168/SwapConnect/shop/recently-uploaded2_zh8dzl.png",
+    "price": "₦80",
+    "description": "Fast internet connection.",
+    "availability": "in stock",
+    "stock": 9,
+    "isTopSale": true,
+    "tag": "Top sale"
+  },
+  {
+    "id": "prod_12",
+    "name": "Printer L",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189167/SwapConnect/shop/recently-uploaded_zroq4s.png",
+    "price": "₦100",
+    "description": "High-quality prints.",
+    "availability": "in stock",
+    "stock": 6,
+    "isTopSale": false,
+    "tag": "New"
+  },
+  {
+    "id": "prod_13",
+    "name": "External Drive M",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189168/SwapConnect/shop/recently-uploaded3_a0fi78.png",
+    "price": "₦70",
+    "description": "Large storage capacity.",
+    "availability": "out of stock",
+    "stock": 0,
+    "isTopSale": false,
+    "tag": "Top sale"
+  },
+  {
+    "id": "prod_14",
+    "name": "Gaming Console N",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189168/SwapConnect/shop/recently-uploaded2_zh8dzl.png",
+    "price": "₦400",
+    "description": "Ultimate gaming experience.",
+    "availability": "in stock",
+    "stock": 11,
+    "isTopSale": true,
+    "tag": "New"
+  },
+  {
+    "id": "prod_15",
+    "name": "Projector O",
+    "image": "https://res.cloudinary.com/ds83mhjcm/image/upload/v1720189167/SwapConnect/shop/recently-uploaded_zroq4s.png",
+    "price": "₦300",
+    "description": "Large screen projection.",
+    "availability": "out of stock",
+    "stock": 0,
+    "isTopSale": false,
+    "tag": "Top sale"
+  }
+]
