@@ -188,6 +188,7 @@ const Login: React.FC = () => {
         const { user, token } = res.data;
         loginUser({ ...user }, token); // Store all user fields and token
         localStorage.setItem("authToken", token);
+        localStorage.setItem("userId", user.id);
 
         toast.success("Login successful!");
 
