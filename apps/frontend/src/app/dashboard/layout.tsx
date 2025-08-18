@@ -1,29 +1,39 @@
-"use client";
+'use client';
 
-import { Nunito } from "next/font/google";
-import { usePathname } from "next/navigation";
-import Sidebar from "@/components/ui/sidebar";
-import Navbar from "@/components/ui/nav";
-import "../globals.css";
+import type React from 'react';
+
+import { Nunito } from 'next/font/google';
+import { usePathname } from 'next/navigation';
+import Sidebar from '@/components/ui/sidebar';
+import Navbar from '@/components/ui/nav';
+import '../globals.css';
 
 const nunito = Nunito({
-  weight: ["400", "500", "700", "800", "900"],
-  subsets: ["latin"],
+  weight: ['400', '500', '700', '800', '900'],
+  subsets: ['latin'],
 });
 
 const pathTitleMap: { [key: string]: string } = {
-  "/dashboard": "Dashboard",
-  "/dashboard/products": "Products",
-  "/dashboard/orders": "Orders",
-  "/dashboard/wallet": "Wallet",
-  "/dashboard/settings": "Settings",
+  '/dashboard': 'Dashboard',
+  '/dashboard/products': 'Products',
+  '/dashboard/orders': 'Orders',
+  '/dashboard/wallet': 'Wallet',
+  '/dashboard/wallet/fund': 'Fund Wallet',
+  '/dashboard/wallet/fund/verify': 'Payment Verification',
+  '/dashboard/wallet/withdraw': 'Withdraw Funds',
+  '/dashboard/settings': 'Settings',
+  '/dashboard/bid': 'Bids',
+  '/dashboard/support': 'Support',
 };
 
 function getTitleFromPath(pathname: string) {
+  const exactMatch = pathTitleMap[pathname];
+  if (exactMatch) return exactMatch;
+
   const match = Object.keys(pathTitleMap).find((key) =>
     pathname.startsWith(key)
   );
-  return pathTitleMap[match ?? "/dashboard"];
+  return pathTitleMap[match ?? '/dashboard'];
 }
 
 export default function DashboardLayout({

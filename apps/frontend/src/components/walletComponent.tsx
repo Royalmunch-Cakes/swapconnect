@@ -1,119 +1,167 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import { Plus, Filter } from "lucide-react";
-import { Input } from "./ui/input";
-import { useAuthToken } from "@/hooks/useAuthToken";
-import { API_URL } from "@/lib/config";
-import { useRouter } from "next/navigation";
-
-// --- Remove hardcoded 'stats' and 'transactions' arrays from here ---
+'use client';
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { Plus, Filter } from 'lucide-react';
+import { Input } from './ui/input';
+import { useAuthToken } from '@/hooks/useAuthToken';
+import { API_URL } from '@/lib/config';
+import { useRouter } from 'next/navigation';
 
 interface WalletData {
-  // Renamed to avoid conflict with state variable
   balance: number;
-  availableBalance: number; // Assuming this exists based on your backend
+  availableBalance: number;
 }
 
 interface Stat {
-  totalEarnings: string; // Consider 'number' if your API sends a number
+  totalEarnings: string;
   totalSpent: string;
   pendingEarnings: string;
-  totalSold: string; // Consider 'number'
+  totalSold: string;
 }
 
 interface Transaction {
   id: string;
-  name: string;
-  description: string;
-  amount: string; // Or number, see formatting suggestion below
-  date: string;
+  reference: string;
+  amount: number;
+  type: string;
+  method: string;
+  purpose: string;
   status: string;
+  description: string;
+  createdAt: string;
+  sender?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  receiver?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
 }
 
-// Helper object for stat display logic
 const statDisplayMap = {
-  totalEarnings: { label: "Total Earnings", color: "#353535" },
-  totalSpent: { label: "Total Spent", color: "#353535" },
-  pendingEarnings: { label: "Pending Earnings", color: "#353535" },
-  totalSold: { label: "Total Sold", color: "#353535" },
+  totalEarnings: { label: 'Total Earnings', color: '#353535' },
+  totalSpent: { label: 'Total Spent', color: '#353535' },
+  pendingEarnings: { label: 'Pending Earnings', color: '#353535' },
+  totalSold: { label: 'Total Sold', color: '#353535' },
 };
 
 export default function Wallet() {
   const [balance, setBalance] = useState<WalletData | null>(null);
   const [stats, setStats] = useState<Stat | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true); // Add loading state
-  const [error, setError] = useState<string | null>(null); // Add error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const token = useAuthToken(); // Use the custom hook to get the token
+  const token = useAuthToken();
   const router = useRouter();
 
-  useEffect(() => {
+  const fetchWalletData = async () => {
     if (!token) {
-      setLoading(false); // If no token, stop loading and don't fetch
+      setLoading(false);
       return;
     }
 
-    const fetchWalletData = async () => {
-      setLoading(true);
-      setError(null); // Clear previous errors
-      try {
-        const response = await fetch(`${API_URL}/api/wallet/transactions`, {
-          method: "GET",
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        `${API_URL}/api/wallet/transactions?_t=${Date.now()}`,
+        {
+          method: 'GET',
           headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Correct template literal
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
           },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
         }
+      );
 
-        const data = await response.json();
-        // console.log("API Response:", data);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
 
-        if (data?.data) {
-          setBalance(data.data.wallet);
-          setStats(data.data.stats);
-          // Ensure data.data.transactions.items is an array before setting
-          if (Array.isArray(data.data.transactions?.items)) {
-            setTransactions(data.data.transactions.items);
-          } else {
-            console.warn(
-              "API did not return transactions.items as an array:",
-              data.data.transactions
-            );
-            setTransactions([]); // Default to empty array if not as expected
-          }
+      const data = await response.json();
+      console.log('[v0] Wallet API Response:', data); // Debug log
+
+      if (data?.data) {
+        setBalance(data.data.wallet);
+        setStats(data.data.stats);
+        if (Array.isArray(data.data.transactions?.items)) {
+          const mappedTransactions = data.data.transactions.items.map(
+            (tx: any) => ({
+              id: tx.id || tx.reference,
+              name: tx.sender
+                ? `${tx.sender.firstName} ${tx.sender.lastName}`
+                : 'System',
+              description: tx.description || tx.purpose || 'Transaction',
+              amount: tx.amount.toString(),
+              date: tx.createdAt,
+              status: tx.status,
+              type: tx.type,
+              reference: tx.reference,
+            })
+          );
+          setTransactions(mappedTransactions);
         } else {
-          console.error("Unexpected API response format:", data);
-          setError("Failed to load data: Unexpected API response format.");
+          console.warn(
+            'API did not return transactions.items as an array:',
+            data.data.transactions
+          );
+          setTransactions([]);
         }
-      } catch (err) {
-        // TypeScript will infer 'err' as 'unknown' by default
-        console.error("Error fetching wallet data:", err);
-        if (err instanceof Error) {
-          // Type guard: check if err is an instance of Error
-          setError(`Error fetching data: ${err.message}`);
-        } else if (typeof err === "string") {
-          // Optional: handle if error is a string
-          setError(`Error fetching data: ${err}`);
-        } else {
-          // Fallback for other unexpected error types
-          setError("Error fetching data: An unknown error occurred.");
-        }
-        setBalance(null);
-        setStats(null);
-        setTransactions([]);
-      } finally {
-        setLoading(false);
+      } else {
+        console.error('Unexpected API response format:', data);
+        setError('Failed to load data: Unexpected API response format.');
+      }
+    } catch (err) {
+      console.error('Error fetching wallet data:', err);
+      if (err instanceof Error) {
+        setError(`Error fetching data: ${err.message}`);
+      } else if (typeof err === 'string') {
+        setError(`Error fetching data: ${err}`);
+      } else {
+        setError('Error fetching data: An unknown error occurred.');
+      }
+      setBalance(null);
+      setStats(null);
+      setTransactions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchWalletData();
+  }, [token]);
+
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'wallet_updated') {
+        console.log('[v0] Wallet update detected, refreshing data'); // Debug log
+        fetchWalletData();
+        localStorage.removeItem('wallet_updated');
       }
     };
 
-    fetchWalletData();
-  }, [token]); // Dependency array: re-run when token changes
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get('status');
+    const reference = urlParams.get('reference');
+
+    if (status && reference) {
+      console.log('[v0] Payment completion detected:', { status, reference }); // Debug log
+      // Clear URL parameters
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Refresh wallet data
+      setTimeout(() => fetchWalletData(), 1000); // Small delay to ensure backend processing is complete
+    }
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [token]);
 
   if (loading) {
     return (
@@ -134,11 +182,53 @@ export default function Wallet() {
     );
   }
 
+  const getTransactionColor = (transaction: Transaction) => {
+    if (transaction.type === 'credit') {
+      return 'text-[#037F44]'; // Green for credits
+    } else if (transaction.type === 'debit') {
+      return 'text-[#DC2626]'; // Red for debits
+    }
+    return 'text-[#6B7280]'; // Gray for neutral
+  };
+
+  const getTransactionSign = (transaction: Transaction) => {
+    if (transaction.type === 'credit') {
+      return '+';
+    } else if (transaction.type === 'debit') {
+      return '-';
+    }
+    return '';
+  };
+
+  const formatTransactionAmount = (transaction: Transaction) => {
+    const amount =
+      typeof transaction.amount === 'string'
+        ? Number.parseFloat(transaction.amount.replace(/[^0-9.]+/g, ''))
+        : Number.parseFloat(transaction.amount.toString());
+
+    const cleanAmount = Math.abs(amount);
+    const sign = getTransactionSign(transaction);
+    return `${sign}₦${cleanAmount.toLocaleString()}`;
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+      case 'success':
+        return 'bg-[#DCFCE7] text-[#037F44]';
+      case 'pending':
+        return 'bg-[#FEF3C7] text-[#D97706]';
+      case 'failed':
+      case 'error':
+        return 'bg-[#FEE2E2] text-[#DC2626]';
+      default:
+        return 'bg-[#F3F4F6] text-[#6B7280]';
+    }
+  };
+
   return (
     <div className="pt-[110px] md:pl-[252px] pl-8 pr-8 pb-8 min-h-screen bg-[#F8F9FB]">
-      {/* Section 1: Wallet Balance and Stats */}
       <div className="flex flex-col lg:flex-row gap-6 mb-10">
-        {/* Wallet Balance Card */}
         <div className="flex flex-col md:flex-row md:w-[497px] md:h-[223px] h-[168px] w-[343px] bg-white rounded-xl shadow p-6 flex justify-between">
           <div className="flex md:flex-col justify-between">
             <div className="flex flex-col">
@@ -146,7 +236,7 @@ export default function Wallet() {
                 Wallet Balance
               </div>
               <div className="md:text-[32px] font-bold text-[#037F44] mb-6">
-                ₦{balance?.balance?.toLocaleString() || "0.00"}
+                ₦{balance?.balance?.toLocaleString() || '0.00'}
               </div>
             </div>
 
@@ -161,33 +251,34 @@ export default function Wallet() {
           <div className="flex md:flex-col justify-between">
             <button
               className="border bg-[#037F44] w-[137px] md:h-[48px] h-[40px] rounded-md text-white text-[16px]"
-              onClick={() => router.push("/dashboard/wallet/withdraw")}
+              onClick={() => router.push('/dashboard/wallet/withdraw')}
             >
               Withdraw
             </button>
             <button
               className="flex items-center justify-center gap-2 border bg-white border-[#037F44] text-[#037F44] w-[174px] md:h-[48px] h-[40px] rounded-md text-[16px]"
-              onClick={() => router.push("/dashboard/wallet/fund")}
+              onClick={() => router.push('/dashboard/wallet/fund')}
             >
-              <Plus width={16} height={16} />
+              <Plus
+                width={16}
+                height={16}
+              />
               Fund Wallet
             </button>
           </div>
         </div>
 
-        {/* Stats Cards */}
         <div className="flex-1 grid grid-cols-2 md:grid-cols-2 gap-4">
           {stats &&
             Object.entries(stats).map(([key, value]) => {
               const displayInfo =
-                statDisplayMap[key as keyof typeof statDisplayMap]; // Type assertion for safety
-              if (!displayInfo) return null; // Handle unexpected keys
+                statDisplayMap[key as keyof typeof statDisplayMap];
+              if (!displayInfo) return null;
 
-              // Format value based on key type (assuming currency for earnings/spent, number for totalSold)
               const formattedValue =
-                key === "totalSold"
-                  ? value // "value" is already a string here
-                  : `₦${parseFloat(value as string).toLocaleString()}`; // Convert to number, then format
+                key === 'totalSold'
+                  ? value
+                  : `₦${Number.parseFloat(value as string).toLocaleString()}`;
 
               return (
                 <div
@@ -209,7 +300,6 @@ export default function Wallet() {
         </div>
       </div>
 
-      {/* Section 2: Transaction History Table */}
       <div className="mb-4 mt-2">
         <div className="flex flex-col gap-4 mb-4">
           <h3 className="hidden md:flex text-xl font-bold text-[#353535]">
@@ -255,13 +345,19 @@ export default function Wallet() {
             <tbody>
               {transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-4 text-[#848484]">
+                  <td
+                    colSpan={6}
+                    className="text-center py-4 text-[#848484]"
+                  >
                     No transactions found for this user.
                   </td>
                 </tr>
               ) : (
                 transactions.map((tx) => (
-                  <tr key={tx.id} className="border-b border-white">
+                  <tr
+                    key={tx.id}
+                    className="border-b border-white"
+                  >
                     <td className="px-4 py-3 text-[#434343] text-[14px]">
                       {tx.id}
                     </td>
@@ -272,23 +368,23 @@ export default function Wallet() {
                       {tx.description}
                     </td>
                     <td
-                      className={`px-4 py-3 text-[14px] font-semibold ${
-                        tx.amount.startsWith("+")
-                          ? "text-[#037F44]"
-                          : "text-[#F87171]"
-                      }`}
+                      className={`px-4 py-3 text-[14px] font-semibold ${getTransactionColor(
+                        tx
+                      )}`}
                     >
-                      {/* Assuming tx.amount is like "+$500" or "-$200" */}
-                      {tx.amount.startsWith("+") ? "₦" : "-₦"}
-                      {Math.abs(
-                        parseFloat(tx.amount.replace(/[^0-9.]+/g, ""))
-                      ).toLocaleString()}
+                      {formatTransactionAmount(tx)}
                     </td>
                     <td className="px-4 py-3 text-[#434343] text-[14px]">
-                      {new Date(tx.date).toLocaleDateString()}
+                      {new Date(tx.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3 text-[#434343] text-[14px]">
-                      {tx.status}
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          tx.status
+                        )}`}
+                      >
+                        {tx.status}
+                      </span>
                     </td>
                   </tr>
                 ))
@@ -318,25 +414,16 @@ export default function Wallet() {
                   </div>
                   <div className="flex flex-col items-end">
                     <div
-                      className={`font-semibold text-[15px] ${
-                        tx.amount.startsWith("+")
-                          ? "text-[#037F44]"
-                          : "text-[#F87171]"
-                      }`}
+                      className={`font-semibold text-[15px] ${getTransactionColor(
+                        tx
+                      )}`}
                     >
-                      {tx.amount.startsWith("+") ? "₦" : "-₦"}
-                      {Math.abs(
-                        parseFloat(tx.amount.replace(/[^0-9.]+/g, ""))
-                      ).toLocaleString()}
+                      {formatTransactionAmount(tx)}
                     </div>
                     <div
-                      className={`mt-1 text-xs px-2 py-1 rounded ${
-                        tx.status === "Completed"
-                          ? "bg-[#E8F0FF] text-[#037F44]"
-                          : tx.status === "Pending"
-                          ? "bg-[#FFF3E8] text-[#D1A941]"
-                          : "bg-[#F8F9FB] text-[#353535]"
-                      }`}
+                      className={`mt-1 text-xs px-2 py-1 rounded-full font-medium ${getStatusColor(
+                        tx.status
+                      )}`}
                     >
                       {tx.status}
                     </div>

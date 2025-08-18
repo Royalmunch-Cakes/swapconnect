@@ -18,7 +18,8 @@ interface Product {
   isActive: boolean;
   swappable: boolean;
   installmentAvailable: boolean;
-  installmentPlans?: Array<{
+installmentPlans?: {
+  plans: Array<{
     name: string;
     numberOfPayments: number;
     paymentInterval: string;
@@ -27,6 +28,7 @@ interface Product {
     downPayment?: number;
     totalAmount: number;
   }>;
+};
   stock: number;
   createdAt: string;
   updatedAt: string;
@@ -242,7 +244,7 @@ export default function ProductDetailPage() {
                     Installment Plans
                   </h3>
                   <div className="space-y-2">
-                    {product.installmentPlans.map((plan, index) => (
+                    {product.installmentPlans && product.installmentPlans.plans.map((plan, index) => (
                       <div
                         key={index}
                         className="border rounded-lg p-3"

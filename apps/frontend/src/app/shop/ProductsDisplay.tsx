@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useEffect, useMemo, type ChangeEvent } from 'react';
 import ProductCard from './ProductCard';
-import { api } from '@/lib/api';
+import { create } from 'zustand';
+import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
+import useProductStore from '@/stores/useProductStoreNew';
+import useCartStore from '@/stores/CartStore';
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   brand?: string;
   description?: string;
@@ -27,9 +30,22 @@ interface Product {
   };
 }
 
+interface ProductsDisplayUIState {
+  currentPage: number;
+  selectedSort: string;
+  minPrice: number;
+  maxPrice: number;
+  showSortDropdown: boolean;
+  setCurrentPage: (page: number) => void;
+  setSelectedSort: (sort: string) => void;
+  setMinPrice: (price: number) => void;
+  setMaxPrice: (price: number) => void;
+  setShowSortDropdown: (show: boolean) => void;
+}
+
 const useProductsDisplayUIStore = create<ProductsDisplayUIState>((set) => ({
   currentPage: 1,
-  selectedSort: "Default Sorting",
+  selectedSort: 'Default Sorting',
   minPrice: 0,
   maxPrice: 1000,
   showSortDropdown: false,
@@ -41,14 +57,14 @@ const useProductsDisplayUIStore = create<ProductsDisplayUIState>((set) => ({
 }));
 
 const sortOptions = [
-  "Default Sorting",
-  "Price: Low to High",
-  "Price: High to Low",
-  "Newest Arrivals",
+  'Default Sorting',
+  'Price: Low to High',
+  'Price: High to Low',
+  'Newest Arrivals',
 ];
 
 const ProductsDisplay = () => {
-  const { products, loading, error, fetchProducts } = useProductStore();
+  const { loading, error, products, fetchProducts } = useProductStore();
   const { addToCart, carts } = useCartStore();
 
   const {
@@ -64,24 +80,7 @@ const ProductsDisplay = () => {
     setShowSortDropdown,
   } = useProductsDisplayUIStore();
 
-  // Fetch product data
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`${backendUrl}/api/products`);
-        if (!res.ok) throw new Error("Failed to fetch products");
-        const data: ApiResponse = await res.json();
-        setProducts(data.data || []);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchProducts();
   }, [fetchProducts]);
 
@@ -93,15 +92,15 @@ const ProductsDisplay = () => {
   // Filtered and sorted products
   const processedProducts = useMemo(() => {
     const filtered = products.filter((product: Product) => {
-      const numericPrice = Number(String(product.price).replace(/[^\d.]/g, ""));
+      const numericPrice = Number(String(product.price).replace(/[^\d.]/g, ''));
       return numericPrice >= minPrice && numericPrice <= maxPrice;
     });
 
-    if (selectedSort === "Price: Low to High") {
+    if (selectedSort === 'Price: Low to High') {
       filtered.sort((a, b) => Number(a.price) - Number(b.price));
-    } else if (selectedSort === "Price: High to Low") {
+    } else if (selectedSort === 'Price: High to Low') {
       filtered.sort((a, b) => Number(b.price) - Number(a.price));
-    } else if (selectedSort === "Newest Arrivals") {
+    } else if (selectedSort === 'Newest Arrivals') {
       filtered.sort((a, b) => {
         return (
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -128,10 +127,10 @@ const ProductsDisplay = () => {
 
   const handlePriceChange = (
     e: ChangeEvent<HTMLInputElement>,
-    type: "min" | "max"
+    type: 'min' | 'max'
   ) => {
     const value = Number(e.target.value);
-    if (type === "min") setMinPrice(value);
+    if (type === 'min') setMinPrice(value);
     else setMaxPrice(value);
   };
 
@@ -172,132 +171,165 @@ const ProductsDisplay = () => {
         <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative inline-block">
           <strong className="font-bold">No Products Found</strong>
           <span className="block sm:inline ml-2">
-            {searchQuery || categoryFilter || priceRange
-              ? 'Try adjusting your search criteria'
-              : 'No products available at the moment'}
+            No products available at the moment
           </span>
         </div>
       </div>
+    );
+  }
 
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Products Section */}
-        <div className="w-full md:w-3/4">
-          {loading ? (
-            <div className="flex justify-center items-center h-48">
-              <span className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-600 mr-2"></span>
-              <span className="text-gray-600">Loading products...</span>
-            </div>
-          ) : error ? (
-            <div className="bg-red-100 text-red-700 p-4 rounded mb-4">
-              Error:{" "}
-              {typeof error === "object" && error && "message" in error
-                ? (error as { message: string }).message
-                : String(error)}
-            </div>
-          ) : totalFilteredProducts === 0 ? (
-            <div className="bg-blue-100 text-blue-700 p-4 rounded mb-4">
-              No products match your filter criteria.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              {displayedProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onAddToCart={addToCart}
-                  isInCart={carts.some((item) => item.id === product.id)}
-                />
-              ))}
-            </div>
-          )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center space-x-2 mt-8">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Previous
-          </button>
-
-          {/* Page numbers */}
-          <div className="flex space-x-1">
-            {[...Array(Math.min(5, totalPages))].map((_, index) => {
-              let pageNumber;
-              if (totalPages <= 5) {
-                pageNumber = index + 1;
-              } else if (currentPage <= 3) {
-                pageNumber = index + 1;
-              } else if (currentPage >= totalPages - 2) {
-                pageNumber = totalPages - 4 + index;
-              } else {
-                pageNumber = currentPage - 2 + index;
-              }
-
-              return (
-                <button
-                  key={pageNumber}
-                  onClick={() => handlePageChange(pageNumber)}
-                  className={`px-3 py-2 rounded-md border border-gray-300 ${
-                    pageNumber === currentPage
-                      ? 'bg-green-600 text-white hover:bg-green-700'
-                      : 'bg-white text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  {pageNumber}
-                </button>
-              ))}
-              <button
-                className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalFilteredPages}
-                aria-label="Next page"
+  return (
+    <div className="flex flex-col md:flex-row gap-6">
+      {/* Products Section */}
+      <div className="w-full md:w-3/4">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">
+            Products ({totalFilteredProducts})
+          </h2>
+          <div className="relative">
+            <button
+              onClick={() => setShowSortDropdown(!showSortDropdown)}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            >
+              {selectedSort}
+              <span
+                className={`transition-transform ${
+                  showSortDropdown ? 'rotate-180' : ''
+                }`}
               >
-                <FaAngleRight />
-              </button>
-            </div>
-          )}
+                ▼
+              </span>
+            </button>
+            {showSortDropdown && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                {sortOptions.map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => handleSortSelect(option)}
+                    className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${
+                      option === selectedSort
+                        ? 'bg-green-50 text-green-700'
+                        : ''
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Sidebar - Price Filter */}
-        <div className="w-full md:w-1/4 bg-white rounded-lg shadow-md p-4 h-fit">
-          <h5 className="font-semibold mb-4">Filter By Price</h5>
-          <div className="mb-4">
-            <label
-              htmlFor="minPrice"
-              className="block text-sm text-gray-700 mb-1"
-            >
-              Min Price: ₦{minPrice}
-            </label>
-            <input
-              id="minPrice"
-              type="range"
-              min={0}
-              max={1000}
-              value={minPrice}
-              onChange={(e) => handlePriceChange(e, "min")}
-              className="w-full accent-green-600"
-            />
+        {totalFilteredProducts === 0 ? (
+          <div className="bg-blue-100 text-blue-700 p-4 rounded mb-4">
+            No products match your filter criteria.
           </div>
-          <div>
-            <label
-              htmlFor="maxPrice"
-              className="block text-sm text-gray-700 mb-1"
-            >
-              Max Price: ₦{maxPrice}
-            </label>
-            <input
-              id="maxPrice"
-              type="range"
-              min={0}
-              max={1000}
-              value={maxPrice}
-              onChange={(e) => handlePriceChange(e, "max")}
-              className="w-full accent-green-600"
-            />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {displayedProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={addToCart}
+                isInCart={carts.some((item) => item.id === product.id)}
+              />
+            ))}
           </div>
+        )}
+
+        {/* Pagination */}
+        {totalFilteredPages > 1 && (
+          <div className="flex justify-center items-center space-x-2 mt-8">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+              aria-label="Previous page"
+            >
+              <FaAngleLeft />
+            </button>
+
+            {/* Page numbers */}
+            <div className="flex space-x-1">
+              {Array.from(
+                { length: Math.min(5, totalFilteredPages) },
+                (_, index) => {
+                  let pageNumber;
+                  if (totalFilteredPages <= 5) {
+                    pageNumber = index + 1;
+                  } else if (currentPage <= 3) {
+                    pageNumber = index + 1;
+                  } else if (currentPage >= totalFilteredPages - 2) {
+                    pageNumber = totalFilteredPages - 4 + index;
+                  } else {
+                    pageNumber = currentPage - 2 + index;
+                  }
+
+                  return (
+                    <button
+                      key={pageNumber}
+                      onClick={() => handlePageChange(pageNumber)}
+                      className={`px-3 py-2 rounded-md border border-gray-300 ${
+                        pageNumber === currentPage
+                          ? 'bg-green-600 text-white hover:bg-green-700'
+                          : 'bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                }
+              )}
+            </div>
+
+            <button
+              className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalFilteredPages}
+              aria-label="Next page"
+            >
+              <FaAngleRight />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Sidebar - Price Filter */}
+      <div className="w-full md:w-1/4 bg-white rounded-lg shadow-md p-4 h-fit">
+        <h5 className="font-semibold mb-4">Filter By Price</h5>
+        <div className="mb-4">
+          <label
+            htmlFor="minPrice"
+            className="block text-sm text-gray-700 mb-1"
+          >
+            Min Price: ₦{minPrice}
+          </label>
+          <input
+            id="minPrice"
+            type="range"
+            min={0}
+            max={1000}
+            value={minPrice}
+            onChange={(e) => handlePriceChange(e, 'min')}
+            className="w-full accent-green-600"
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="maxPrice"
+            className="block text-sm text-gray-700 mb-1"
+          >
+            Max Price: ₦{maxPrice}
+          </label>
+          <input
+            id="maxPrice"
+            type="range"
+            min={0}
+            max={1000}
+            value={maxPrice}
+            onChange={(e) => handlePriceChange(e, 'max')}
+            className="w-full accent-green-600"
+          />
         </div>
       </div>
     </div>
