@@ -16,7 +16,7 @@ import Link from 'next/link';
 import { API_URL } from '../../lib/config';
 import { useAuthToken } from '../../hooks/useAuthToken';
 import { useUserStore } from '@/stores/AuthStore';
-import NotificationBell from '@/components/NotificationBell';
+import NotificationBell from '@/components/ui/notification-bell';
 
 const menuItems = [
   { label: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
@@ -152,7 +152,7 @@ const Navbar: React.FC<NavProps> = ({ title }) => {
             className="flex cursor-pointer"
             aria-label="Notifications"
           >
-            <NotificationBell userId="" />
+            <NotificationBell />
           </div>
           <div className="h-8 w-px bg-gray-300" />
           <div className="flex items-center gap-[12px]">
@@ -209,7 +209,7 @@ const Navbar: React.FC<NavProps> = ({ title }) => {
             className="flex cursor-pointer"
             aria-label="Notifications"
           >
-            <NotificationBell userId="" />
+            <NotificationBell />
           </div>
           <button
             className="flex cursor-pointer"
