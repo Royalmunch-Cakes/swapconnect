@@ -2912,7 +2912,7 @@ fraction.js@^4.3.7:
   resolved "https://registry.npmjs.org/fraction.js/-/fraction.js-4.3.7.tgz"
   integrity sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==
 
-"frontend@file:/home/oluwayimika/Desktop/Projects/Swapconnect-v2.1/apps/frontend":
+"frontend@file:C:\\Users\\adebanjo.adeniji\\Documents\\Swapconnect-v2.1\\apps\\frontend":
   version "0.1.0"
   resolved "file:apps/frontend"
   dependencies:

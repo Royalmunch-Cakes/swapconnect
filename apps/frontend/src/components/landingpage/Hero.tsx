@@ -60,7 +60,9 @@ const Hero: React.FC = () => {
   return (
     <section className="relative w-full min-h-[500px] flex flex-col items-center justify-center py-8">
       {/* Custom Navbar */}
-      <CustomNavbar />
+      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+        <CustomNavbar />
+      </div>
 
       {/* Carousel Container */}
       <div className="relative w-full max-w-6xl mx-auto bg-black rounded-3xl shadow-lg overflow-hidden flex flex-col md:flex-row items-center">
