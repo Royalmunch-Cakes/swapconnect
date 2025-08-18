@@ -15,10 +15,8 @@ export function useNotifications() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [preferences, setPreferences] = useState<NotificationPreferences>({
-    emailNotifications: true,
-    pushNotifications: true,
-  });
+  const [preferences, setPreferences] =
+    useState<NotificationPreferences | null>(null);
   const token = useAuthToken();
 
   const fetchNotifications = useCallback(
@@ -81,6 +79,10 @@ export function useNotifications() {
       }
     } catch (err) {
       console.error('Error fetching notification preferences:', err);
+      setPreferences({
+        emailNotifications: false,
+        pushNotifications: false,
+      });
     }
   }, [token]);
 
@@ -157,7 +159,7 @@ export function useNotifications() {
 
   const updatePreferences = useCallback(
     async (newPreferences: Partial<NotificationPreferences>) => {
-      if (!token) return;
+      if (!token) return false;
 
       try {
         const response = await api.put(

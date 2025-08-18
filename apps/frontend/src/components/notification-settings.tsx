@@ -1,36 +1,89 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Bell, Mail, Smartphone, Save, Loader2 } from 'lucide-react';
 
 export default function NotificationSettings() {
-  const { preferences, updatePreferences } = useNotifications();
-  const [localPreferences, setLocalPreferences] = useState(preferences);
+  const { preferences, updatePreferences, loading, error } = useNotifications();
+
+  const [localPreferences, setLocalPreferences] = useState<{
+    emailNotifications: boolean;
+    pushNotifications: boolean;
+  } | null>(null);
+
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const handleToggle = (key: keyof typeof preferences) => {
-    setLocalPreferences((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+  // Initialize local preferences when preferences are loaded
+  useEffect(() => {
+    if (!loading && preferences) {
+      setLocalPreferences({
+        emailNotifications: preferences.emailNotifications,
+        pushNotifications: preferences.pushNotifications,
+      });
+    }
+  }, [loading, preferences]);
+
+  const handleToggle = (key: keyof NonNullable<typeof localPreferences>) => {
+    setLocalPreferences((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        [key]: !prev[key],
+      };
+    });
   };
 
   const handleSave = async () => {
-    setSaving(true);
-    const success = await updatePreferences(localPreferences);
-    setSaving(false);
+    if (!localPreferences) return;
 
-    if (success) {
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+    setSaving(true);
+    try {
+      const success = await updatePreferences(localPreferences);
+      if (success) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      }
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+    } finally {
+      setSaving(false);
     }
   };
 
   const hasChanges =
-    localPreferences.emailNotifications !== preferences.emailNotifications ||
-    localPreferences.pushNotifications !== preferences.pushNotifications;
+    localPreferences && preferences
+      ? localPreferences.emailNotifications !==
+          preferences.emailNotifications ||
+        localPreferences.pushNotifications !== preferences.pushNotifications
+      : false;
+
+  if (loading || !localPreferences) {
+    return (
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center justify-center py-8">
+          <Loader2
+            className="animate-spin text-[#037F44]"
+            size={24}
+          />
+          <span className="ml-2 text-gray-600">
+            Loading notification settings...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="text-red-500">
+          Error loading notification settings: {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
@@ -121,29 +174,26 @@ export default function NotificationSettings() {
         </div>
 
         {/* Save Button */}
-        {hasChanges && (
-          <div className="flex justify-end">
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex items-center gap-2 bg-[#037F44] text-white px-6 py-2 rounded-md hover:bg-[#025c32] transition disabled:opacity-50"
-            >
-              {saving ? (
-                <Loader2
-                  className="animate-spin"
-                  size={16}
-                />
-              ) : saved ? (
-                <span className="text-green-200">✓ Saved</span>
-              ) : (
-                <>
-                  <Save size={16} />
-                  Save Changes
-                </>
-              )}
-            </button>
-          </div>
-        )}
+        {(
+        <div className="flex justify-end">
+          <button
+            onClick={handleSave}
+            disabled={saving || !hasChanges}
+            className="flex items-center gap-2 bg-[#037F44] text-white px-6 py-2 rounded-md hover:bg-[#025c32] transition disabled:opacity-50"
+          >
+            {saving ? (
+              <Loader2 className="animate-spin" size={16} />
+            ) : saved ? (
+              <span className="text-green-200">✓ Saved</span>
+            ) : (
+              <>
+                <Save size={16} />
+                Save Changes
+              </>
+            )}
+          </button>
+        </div>
+      )}
       </div>
     </div>
   );

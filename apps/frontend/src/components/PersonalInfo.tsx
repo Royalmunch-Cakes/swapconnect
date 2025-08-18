@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Save, Loader2 } from 'lucide-react';
-import { API_URL } from '@/lib/config';
+import { api } from '@/lib/api';
 import { useAuthToken } from '@/hooks/useAuthToken';
 
 interface UserData {
@@ -34,34 +34,26 @@ export default function PersonalInfo({ userId }: { userId: string }) {
   const token = useAuthToken();
 
   useEffect(() => {
-    if (!token || !userId) return;
+    if (!token) return;
 
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/users`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await api.get('/api/users', token);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch user data');
+        if (!response.success) {
+          throw new Error(response.error || 'Failed to fetch user data');
         }
 
-        const data = await response.json();
-        if (data.data) {
-          console.log(data);
+        if (response.data) {
           setUserData({
-            firstName: data.data.firstName || '',
-            lastName: data.data.lastName || '',
-            email: data.data.email || '',
-            phone: data.data.phone || '',
-            address: data.data.address || '',
-            city: data.data.city || '',
-            state: data.data.state || '',
-            country: data.data.country || '',
+            firstName: response.data.firstName || '',
+            lastName: response.data.lastName || '',
+            email: response.data.email || '',
+            phone: response.data.phone || '',
+            address: response.data.address || '',
+            city: response.data.city || '',
+            state: response.data.state || '',
+            country: response.data.country || '',
           });
         }
       } catch (err) {
@@ -73,7 +65,7 @@ export default function PersonalInfo({ userId }: { userId: string }) {
     };
 
     fetchUserData();
-  }, [token, userId]);
+  }, [token]);
 
   const handleInputChange = (field: keyof UserData, value: string) => {
     setUserData((prev) => ({
@@ -87,17 +79,10 @@ export default function PersonalInfo({ userId }: { userId: string }) {
     setError(null);
 
     try {
-      const response = await fetch(`${API_URL}/api/users/update`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(userData),
-      });
+      const response = await api.patch('/api/users', userData, token);
 
-      if (!response.ok) {
-        throw new Error('Failed to update user data');
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to update user data');
       }
 
       setSaved(true);

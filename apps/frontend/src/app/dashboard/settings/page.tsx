@@ -2,15 +2,16 @@
 
 import PersonalInfo from '@/components/PersonalInfo';
 import NotificationSettings from '@/components/notification-settings';
+import AccountSettings from '@/components/account-settings';
 import { useEffect, useState } from 'react';
 import { useAuthToken } from '@/hooks/useAuthToken';
 
 function Page() {
   const token = useAuthToken();
   const [userId, setUserId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'personal' | 'notifications'>(
-    'personal'
-  );
+  const [activeTab, setActiveTab] = useState<
+    'personal' | 'notifications' | 'account'
+  >('personal');
 
   useEffect(() => {
     // Only run in the browser
@@ -45,12 +46,24 @@ function Page() {
         >
           Notifications
         </button>
+        <button
+          onClick={() => setActiveTab('account')}
+          className={`px-6 py-2 rounded-md text-[16px] transition ${
+            activeTab === 'account'
+              ? 'bg-[#037F44] text-white'
+              : 'bg-transparent text-[#037F44] hover:bg-[#e6f9f0]'
+          }`}
+        >
+          Account
+        </button>
       </div>
 
       {activeTab === 'personal' ? (
         <PersonalInfo userId={userId} />
-      ) : (
+      ) : activeTab === 'notifications' ? (
         <NotificationSettings />
+      ) : (
+        <AccountSettings />
       )}
     </div>
   );
