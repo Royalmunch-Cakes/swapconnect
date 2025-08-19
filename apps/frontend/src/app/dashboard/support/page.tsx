@@ -8,15 +8,16 @@ import { Send, MessageCircle, User, Clock, CheckCheck } from 'lucide-react';
 import { API_URL } from '@/lib/config';
 
 interface Message {
-  id: string;
+  id: number;
   content: string;
-  senderId: string;
-  conversationId: string;
+  senderId: number;
+  conversationId: number;
   messageType: string;
   isRead: boolean;
   createdAt: string;
+  updatedAt: string;
   Sender: {
-    id: string;
+    id: number;
     firstName: string;
     lastName: string;
     email: string;
@@ -26,26 +27,29 @@ interface Message {
 }
 
 interface Conversation {
-  id: string;
-  user: string;
-  admin?: string;
+  id: number;
+  user: number;
+  admin?: number;
   subject: string;
   status: string;
   lastMessageAt: string;
+  createdAt: string;
+  updatedAt: string;
   User: {
-    id: string;
+    id: number;
     firstName: string;
     lastName: string;
     email: string;
     avatar?: string;
   };
   Admin?: {
-    id: string;
+    id: number;
     firstName: string;
     lastName: string;
     email: string;
     avatar?: string;
   };
+  Messages?: Message[];
 }
 
 function SupportPage() {
@@ -59,6 +63,8 @@ function SupportPage() {
   const [typingUser, setTypingUser] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [hasAttemptedJoin, setHasAttemptedJoin] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -67,6 +73,41 @@ function SupportPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Fetch existing conversation when token is available
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchExistingConversation = async () => {
+      try {
+        const response = await fetch(
+          `${API_URL}/api/conversations/my-conversation`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.conversation) {
+            setConversation(data.conversation);
+            setCurrentUserId(data.conversation.user);
+
+            // Set the messages from the API response
+            if (data.messages && data.messages.length > 0) {
+              setMessages(data.messages);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching conversation:', error);
+      }
+    };
+
+    fetchExistingConversation();
+  }, [token]);
 
   useEffect(() => {
     if (!token) return;
@@ -77,7 +118,6 @@ function SupportPage() {
     );
 
     const newSocket = io(API_URL, {
-    // const newSocket = io('http://localhost:3001', {
       auth: {
         token,
       },
@@ -102,30 +142,64 @@ function SupportPage() {
       setIsConnected(false);
     });
 
-    newSocket.on('receiveMessage', (message: Message) => {
-      console.log('[v0] Received message:', message);
-      setMessages((prev) => [...prev, message]);
-    });
-
     newSocket.on(
       'conversationJoined',
       (data: { conversation: Conversation; messages: Message[] }) => {
         console.log('[v0] Conversation joined:', data);
         setConversation(data.conversation);
-        setMessages(data.messages);
+        // Only set messages if we don't already have them from the API
+        if (messages.length === 0) {
+          setMessages(data.messages);
+        }
+        setCurrentUserId(data.conversation.user);
+        setHasAttemptedJoin(true);
       }
     );
 
-    newSocket.on('joinedRoom', (conversation: Conversation) => {
-      console.log('[v0] Joined room:', conversation);
-      setConversation(conversation);
-    });
+    newSocket.on(
+      'conversationCreated',
+      (data: { conversation: Conversation; message: Message }) => {
+        console.log('[v0] Conversation created:', data);
+        setConversation(data.conversation);
+        setMessages([data.message]);
+        setCurrentUserId(data.conversation.user);
+
+        // Join the newly created conversation
+        newSocket.emit('joinConversation', {
+          conversationId: data.conversation.id,
+        });
+      }
+    );
 
     newSocket.on('newMessage', (message: Message) => {
       console.log('[v0] New message:', message);
       setMessages((prev) => [...prev, message]);
+
+      // If this is the first message and we don't have a conversation yet
+      if (!conversation && message.conversationId) {
+        // Create a temporary conversation object
+        const tempConversation = {
+          id: message.conversationId,
+          user: message.senderId,
+          subject: 'Support Request',
+          status: 'open',
+          lastMessageAt: message.createdAt,
+          createdAt: message.createdAt,
+          updatedAt: message.updatedAt,
+          User: message.Sender,
+        } as Conversation;
+
+        setConversation(tempConversation);
+        setCurrentUserId(message.senderId);
+
+        // Join the conversation
+        newSocket.emit('joinConversation', {
+          conversationId: message.conversationId,
+        });
+      }
+
       // Mark message as read if it's not from current user
-      if (message.senderId !== token) {
+      if (message.senderId !== currentUserId) {
         newSocket.emit('markAsRead', {
           conversationId: message.conversationId,
           messageIds: [message.id],
@@ -134,13 +208,49 @@ function SupportPage() {
     });
 
     newSocket.on(
+      'newAdminMessage',
+      (data: { conversationId: number; message: Message }) => {
+        console.log('[v0] New admin message:', data);
+        setMessages((prev) => [...prev, data.message]);
+
+        // Auto-mark admin messages as read
+        newSocket.emit('markAsRead', {
+          conversationId: data.conversationId,
+          messageIds: [data.message.id],
+        });
+      }
+    );
+
+    newSocket.on(
       'userTyping',
-      (data: { userId: string; userName: string; isTyping: boolean }) => {
-        if (data.isTyping) {
-          setTypingUser(data.userName);
-        } else {
-          setTypingUser(null);
+      (data: { userId: number; userName: string; isTyping: boolean }) => {
+        console.log('[v0] User typing:', data);
+        if (data.userId !== currentUserId) {
+          if (data.isTyping) {
+            setTypingUser(data.userName);
+          } else {
+            setTypingUser(null);
+          }
         }
+      }
+    );
+
+    newSocket.on(
+      'messagesMarkedAsRead',
+      (data: {
+        conversationId: number;
+        readBy: number;
+        messageIds?: number[];
+      }) => {
+        console.log('[v0] Messages marked as read:', data);
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.conversationId === data.conversationId &&
+            (!data.messageIds || data.messageIds.includes(msg.id))
+              ? { ...msg, isRead: true }
+              : msg
+          )
+        );
       }
     );
 
@@ -157,19 +267,38 @@ function SupportPage() {
     return () => {
       newSocket.disconnect();
     };
-  }, [token]);
+  }, [token, currentUserId, messages.length]);
+
+  // Join existing conversation when socket is connected and conversation is available
+  useEffect(() => {
+    if (socket && isConnected && conversation && !hasAttemptedJoin) {
+      console.log('[v0] Joining existing conversation:', conversation.id);
+      socket.emit('joinConversation', { conversationId: conversation.id });
+      setHasAttemptedJoin(true);
+    }
+  }, [socket, isConnected, conversation, hasAttemptedJoin]);
 
   const sendMessage = () => {
-    if (!input.trim() || !socket) return;
+    if (!input.trim() || !socket || !isConnected) return;
 
     console.log('[v0] Sending message:', input.trim());
+    console.log('[v0] Current conversation:', conversation);
 
-    if (conversation) {
-      socket.emit('sendMessage', input.trim(), conversation.id);
-    } else {
-      socket.emit('sendMessage', input.trim());
-    }
+    // For the first message, don't send conversationId at all
+    // The server will handle creating the conversation
+    const messageData = conversation?.id
+      ? {
+          conversationId: conversation.id,
+          content: input.trim(),
+          messageType: 'text',
+        }
+      : {
+          content: input.trim(),
+          messageType: 'text',
+        };
 
+    console.log('[v0] Sending message data:', messageData);
+    socket.emit('sendMessage', messageData);
     setInput('');
 
     // Stop typing indicator
@@ -182,6 +311,7 @@ function SupportPage() {
         isTyping: false,
       });
     }
+    setIsTyping(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -189,7 +319,13 @@ function SupportPage() {
 
     if (!socket || !conversation) return;
 
-    socket.emit('typing', { conversationId: conversation.id, isTyping: true });
+    if (!isTyping) {
+      setIsTyping(true);
+      socket.emit('typing', {
+        conversationId: conversation.id,
+        isTyping: true,
+      });
+    }
 
     // Clear existing timeout
     if (typingTimeoutRef.current) {
@@ -198,6 +334,7 @@ function SupportPage() {
 
     // Set timeout to stop typing indicator
     typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
       socket.emit('typing', {
         conversationId: conversation.id,
         isTyping: false,
@@ -223,6 +360,11 @@ function SupportPage() {
     } else {
       return date.toLocaleDateString();
     }
+  };
+
+  // Determine if message is from current user
+  const isMessageFromCurrentUser = (message: Message) => {
+    return message.senderId === currentUserId;
   };
 
   return (
@@ -274,7 +416,7 @@ function SupportPage() {
             ) : (
               <>
                 {messages.map((message, index) => {
-                  const isCurrentUser = message.Sender.role === 'user';
+                  const isCurrentUser = isMessageFromCurrentUser(message);
                   const showDate =
                     index === 0 ||
                     formatDate(messages[index - 1].createdAt) !==
@@ -309,9 +451,11 @@ function SupportPage() {
                                 {message.Sender.firstName}{' '}
                                 {message.Sender.lastName}
                               </span>
-                              <span className="text-xs opacity-75 bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                                Support
-                              </span>
+                              {message.Sender.role !== 'user' && (
+                                <span className="text-xs opacity-75 bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                                  Support
+                                </span>
+                              )}
                             </div>
                           )}
 
