@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -10,6 +10,9 @@ import {
   faArrowRight,
   faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from "next/navigation";
+import { Toaster } from "react-hot-toast";
+import { useUserStore } from "@/stores/AuthStore";
 
 interface Product {
   id: string;
@@ -57,9 +60,40 @@ const fetchRecentlyUploaded = async (token?: string): Promise<Product[]> => {
 const MobilePhonesPage: React.FC = () => {
   const router = useRouter();
   const { user, token, isAuthenticated } = useUserStore();
-
+  const [formData, setFormData] = useState<MobileFormData>({
+    brand: "",
+    model: "",
+    storage: "",
+    ram: "",
+    batteryCapacity: "",
+    batteryHours: "",
+    phoneAge: "",
+    deviceImage: undefined,
+    autoOnOff: "",
+    bodyCondition: "",
+    screenCondition: "",
+    repairVisits: "",
+    biometricFunction: "",
+  });
   const [recentlyUploaded, setRecentlyUploaded] = useState<Product[]>([]);
   const [startIndex, setStartIndex] = useState(0);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value, files } = e.target as HTMLInputElement;
+
+    if (files && files.length > 0) {
+      setFormData((prev) => ({ ...prev, [name]: files[0] }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Form submitted:", formData);
+  };
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -304,179 +338,180 @@ const MobilePhonesPage: React.FC = () => {
             </div>
           </div>
 
-        {/* Right Column: Possible Value for New */}
-        <div className="w-full md:w-4/12 lg:w-1/4">
-          <div className="rounded-lg border border-yellow-600 shadow-md p-4 bg-white">
-            <h4 className="text-xl font-semibold mb-2">
-              Possible Value for New
-            </h4>
-            <p className="text-sm text-gray-600 mb-4">
-              Note: Values are auto generated and might not be absolutely
-              correct.
-            </p>
-            <div className="relative w-full h-40 mb-4">
-              <Image
-                src="https://res.cloudinary.com/ds83mhjcm/image/upload/v1720182137/SwapConnect/swap/trade-in-calculator_value_kjsuxr.png"
-                alt="Trade-in value illustration"
-                layout="fill"
-                objectFit="contain"
-                className="rounded-md"
-              />
+          {/* Right Column: Possible Value for New */}
+          <div className="w-full md:w-4/12 lg:w-1/4">
+            <div className="rounded-lg border border-yellow-600 shadow-md p-4 bg-white">
+              <h4 className="text-xl font-semibold mb-2">
+                Possible Value for New
+              </h4>
+              <p className="text-sm text-gray-600 mb-4">
+                Note: Values are auto generated and might not be absolutely
+                correct.
+              </p>
+              <div className="relative w-full h-40 mb-4">
+                <Image
+                  src="https://res.cloudinary.com/ds83mhjcm/image/upload/v1720182137/SwapConnect/swap/trade-in-calculator_value_kjsuxr.png"
+                  alt="Trade-in value illustration"
+                  layout="fill"
+                  objectFit="contain"
+                  className="rounded-md"
+                />
+              </div>
+              <strong className="block mt-3 text-gray-800">
+                Average price
+              </strong>
+              <div className="bg-gray-200 p-3 rounded-md mt-2 text-gray-700 min-h-[40px]">
+                {/* Display field content here */}
+              </div>
+              <Link
+                href="#"
+                passHref
+                className="flex items-center text-yellow-600 hover:text-yellow-700 mt-4 text-sm font-medium"
+              >
+                see full details <FaChevronRight className="ml-1 text-xs" />
+                <FaChevronRight className="text-xs" />
+                <FaChevronRight className="text-xs" />
+              </Link>
             </div>
-            <strong className="block mt-3 text-gray-800">Average price</strong>
-            <div className="bg-gray-200 p-3 rounded-md mt-2 text-gray-700 min-h-[40px]">
-              {/* Display field content here */}
-            </div>
-            <Link
-              href="#"
-              passHref
-              className="flex items-center text-yellow-600 hover:text-yellow-700 mt-4 text-sm font-medium"
-            >
-              see full details <FaChevronRight className="ml-1 text-xs" />
-              <FaChevronRight className="text-xs" />
-              <FaChevronRight className="text-xs" />
-            </Link>
           </div>
         </div>
-      </div>
+      </form>
 
-        {/* Second section */}
-        <div className="mt-12 flex flex-col md:flex-row gap-8">
-          {/* Left Column: Additional details */}
-          <div className="w-full md:w-6/12 lg:w-1/2">
-            <h3 className="mb-6 text-xl font-bold text-gray-800">
-              Additional Details
-            </h3>
-            <div className="grid grid-cols-1 gap-y-4">
-              {/* Product turns off and on automatically? */}
-              <div className="relative mb-3">
-                <label
-                  htmlFor="autoOnOff"
-                  className="block text-gray-700 text-sm font-medium mb-1"
-                >
-                  Does your phone turn off and on automatically?
-                </label>
-                <select
-                  id="autoOnOff"
-                  name="autoOnOff"
-                  value={formData.autoOnOff}
-                  onChange={handleChange}
-                  className="form-select block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm appearance-none pr-10"
-                >
-                  <option value="">Select Option</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
-              </div>
-
-              {/* Condition of product's body */}
-              <div className="relative mb-3">
-                <label
-                  htmlFor="bodyCondition"
-                  className="block text-gray-700 text-sm font-medium mb-1"
-                >
-                  What is the condition of your phone&apos;s body?
-                </label>
-                <select
-                  id="bodyCondition"
-                  name="bodyCondition"
-                  value={formData.bodyCondition}
-                  onChange={handleChange}
-                  className="form-select block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm appearance-none pr-10"
-                >
-                  <option value="">Select Option</option>
-                  <option value="perfect">Perfect</option>
-                  <option value="minor_scratches">Minor Scratches</option>
-                  <option value="dents">Dents</option>
-                  <option value="cracked">Cracked</option>
-                </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
-              </div>
-
-              {/* Condition of product's screen */}
-              <div className="relative mb-3">
-                <label
-                  htmlFor="screenCondition"
-                  className="block text-gray-700 text-sm font-medium mb-1"
-                >
-                  What is the condition of your phone&apos;s screen?
-                </label>
-                <select
-                  id="screenCondition"
-                  name="screenCondition"
-                  value={formData.screenCondition}
-                  onChange={handleChange}
-                  className="form-select block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm appearance-none pr-10"
-                >
-                  <option value="">Select Option</option>
-                  <option value="perfect">Perfect</option>
-                  <option value="minor_scratches">Minor Scratches</option>
-                  <option value="cracked">Cracked</option>
-                  <option value="shattered">Shattered</option>
-                </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
-              </div>
-
-              {/* Times visited technician for repair */}
-              <div className="relative mb-3">
-                <label
-                  htmlFor="repairVisits"
-                  className="block text-gray-700 text-sm font-medium mb-1"
-                >
-                  How many times have you visited a technician for repair?
-                </label>
-                <select
-                  id="repairVisits"
-                  name="repairVisits"
-                  value={formData.repairVisits}
-                  onChange={handleChange}
-                  className="form-select block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm appearance-none pr-10"
-                >
-                  <option value="">Select Option</option>
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2-3">2 - 3</option>
-                  <option value="more-than-3-times">
-                    More than three times
-                  </option>
-                </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
-              </div>
-
-              {/* Touch ID / Face ID function normally? */}
-              <div className="relative mb-3">
-                <label
-                  htmlFor="biometricFunction"
-                  className="block text-gray-700 text-sm font-medium mb-1"
-                >
-                  Where applicable, does Touch ID or Face ID function normally?
-                </label>
-                <select
-                  id="biometricFunction"
-                  name="biometricFunction"
-                  value={formData.biometricFunction}
-                  onChange={handleChange}
-                  className="form-select block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm appearance-none pr-10"
-                >
-                  <option value="">Select Option</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                  <option value="not_applicable">Not Applicable</option>
-                </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
-              </div>
+      {/* Second section */}
+      <div className="mt-12 flex flex-col md:flex-row gap-8">
+        {/* Left Column: Additional details */}
+        <div className="w-full md:w-6/12 lg:w-1/2">
+          <h3 className="mb-6 text-xl font-bold text-gray-800">
+            Additional Details
+          </h3>
+          <div className="grid grid-cols-1 gap-y-4">
+            {/* Product turns off and on automatically? */}
+            <div className="relative mb-3">
+              <label
+                htmlFor="autoOnOff"
+                className="block text-gray-700 text-sm font-medium mb-1"
+              >
+                Does your phone turn off and on automatically?
+              </label>
+              <select
+                id="autoOnOff"
+                name="autoOnOff"
+                value={formData.autoOnOff}
+                onChange={handleChange}
+                className="form-select block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm appearance-none pr-10"
+              >
+                <option value="">Select Option</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+              <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
             </div>
 
-            <p className="mt-6 mb-4 text-sm text-gray-700">
-              <strong className="font-bold">
-                Important: this trade-in estimate is not final and is subject to
-                change after a full evaluation by Swapconnect trade-in
-                technician. If the information provided is inaccurate here, your
-                trade-in value will also be impacted. Note that we do not accept
-                stolen or counterfeit devices.
-              </strong>{" "}
-            </p>
+            {/* Condition of product's body */}
+            <div className="relative mb-3">
+              <label
+                htmlFor="bodyCondition"
+                className="block text-gray-700 text-sm font-medium mb-1"
+              >
+                What is the condition of your phone&apos;s body?
+              </label>
+              <select
+                id="bodyCondition"
+                name="bodyCondition"
+                value={formData.bodyCondition}
+                onChange={handleChange}
+                className="form-select block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm appearance-none pr-10"
+              >
+                <option value="">Select Option</option>
+                <option value="perfect">Perfect</option>
+                <option value="minor_scratches">Minor Scratches</option>
+                <option value="dents">Dents</option>
+                <option value="cracked">Cracked</option>
+              </select>
+              <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+            </div>
+
+            {/* Condition of product's screen */}
+            <div className="relative mb-3">
+              <label
+                htmlFor="screenCondition"
+                className="block text-gray-700 text-sm font-medium mb-1"
+              >
+                What is the condition of your phone&apos;s screen?
+              </label>
+              <select
+                id="screenCondition"
+                name="screenCondition"
+                value={formData.screenCondition}
+                onChange={handleChange}
+                className="form-select block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm appearance-none pr-10"
+              >
+                <option value="">Select Option</option>
+                <option value="perfect">Perfect</option>
+                <option value="minor_scratches">Minor Scratches</option>
+                <option value="cracked">Cracked</option>
+                <option value="shattered">Shattered</option>
+              </select>
+              <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+            </div>
+
+            {/* Times visited technician for repair */}
+            <div className="relative mb-3">
+              <label
+                htmlFor="repairVisits"
+                className="block text-gray-700 text-sm font-medium mb-1"
+              >
+                How many times have you visited a technician for repair?
+              </label>
+              <select
+                id="repairVisits"
+                name="repairVisits"
+                value={formData.repairVisits}
+                onChange={handleChange}
+                className="form-select block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm appearance-none pr-10"
+              >
+                <option value="">Select Option</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2-3">2 - 3</option>
+                <option value="more-than-3-times">More than three times</option>
+              </select>
+              <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+            </div>
+
+            {/* Touch ID / Face ID function normally? */}
+            <div className="relative mb-3">
+              <label
+                htmlFor="biometricFunction"
+                className="block text-gray-700 text-sm font-medium mb-1"
+              >
+                Where applicable, does Touch ID or Face ID function normally?
+              </label>
+              <select
+                id="biometricFunction"
+                name="biometricFunction"
+                value={formData.biometricFunction}
+                onChange={handleChange}
+                className="form-select block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm appearance-none pr-10"
+              >
+                <option value="">Select Option</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+                <option value="not_applicable">Not Applicable</option>
+              </select>
+              <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+            </div>
+          </div>
+
+          <p className="mt-6 mb-4 text-sm text-gray-700">
+            <strong className="font-bold">
+              Important: this trade-in estimate is not final and is subject to
+              change after a full evaluation by Swapconnect trade-in technician.
+              If the information provided is inaccurate here, your trade-in
+              value will also be impacted. Note that we do not accept stolen or
+              counterfeit devices.
+            </strong>{" "}
+          </p>
 
           <div className="space-y-3 mb-6">
             <div className="flex items-center">
@@ -528,39 +563,39 @@ const MobilePhonesPage: React.FC = () => {
           </button>
         </div>
 
-          {/* Right Column: Recently uploaded products */}
-          <div className="w-full md:w-6/12 lg:w-1/2">
-            <h3 className="mb-6 text-xl font-bold text-gray-800">
-              Recently Listed Mobile Phones
-            </h3>
-            <div className="flex items-center justify-center mb-6 gap-4">
-              <button
-                onClick={handlePrev}
-                disabled={isPrevDisabled}
-                className={`flex items-center justify-center w-10 h-10 rounded-lg text-lg transition-colors duration-200
+        {/* Right Column: Recently uploaded products */}
+        <div className="w-full md:w-6/12 lg:w-1/2">
+          <h3 className="mb-6 text-xl font-bold text-gray-800">
+            Recently Listed Mobile Phones
+          </h3>
+          <div className="flex items-center justify-center mb-6 gap-4">
+            <button
+              onClick={handlePrev}
+              disabled={isPrevDisabled}
+              className={`flex items-center justify-center w-10 h-10 rounded-lg text-lg transition-colors duration-200
                 ${
                   isPrevDisabled
                     ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                     : "bg-yellow-600 text-white hover:bg-yellow-700"
                 }`}
-                aria-label="Previous products"
-              >
-                <FontAwesomeIcon icon={faArrowLeft} />
-              </button>
-              <button
-                onClick={handleNext}
-                disabled={isNextDisabled}
-                className={`flex items-center justify-center w-10 h-10 rounded-lg text-lg transition-colors duration-200
+              aria-label="Previous products"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} />
+            </button>
+            <button
+              onClick={handleNext}
+              disabled={isNextDisabled}
+              className={`flex items-center justify-center w-10 h-10 rounded-lg text-lg transition-colors duration-200
                 ${
                   isNextDisabled
                     ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                     : "bg-yellow-600 text-white hover:bg-yellow-700"
                 }`}
-                aria-label="Next products"
-              >
-                <FontAwesomeIcon icon={faArrowRight} />
-              </button>
-            </div>
+              aria-label="Next products"
+            >
+              <FontAwesomeIcon icon={faArrowRight} />
+            </button>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {currentItems.map((product) => (

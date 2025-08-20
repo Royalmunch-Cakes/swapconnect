@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import type React from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import toast, { Toaster } from "react-hot-toast";
@@ -69,6 +70,9 @@ const Login: React.FC = () => {
   const [emailForVerification, setEmailForVerification] = useState("");
   const [callbackError, setCallbackError] = useState<string | null>(null);
   const [callbackSuccess, setCallbackSuccess] = useState<string | null>(null);
+  const [show2FAPopup, setShow2FAPopup] = useState(false);
+  const [twoFactorOtp, setTwoFactorOtp] = useState<number | null>(null);
+  const [emailFor2FA, setEmailFor2FA] = useState("");
 
   const router = useRouter();
   const { loginUser } = useUserStore();
@@ -154,12 +158,41 @@ const Login: React.FC = () => {
     [backendUrl]
   );
 
+  const send2FACode = useCallback(async (email: string) => {
+    setIsProcessing(true);
+    toast.loading("Sending 2FA code...", { id: "2fa-send" });
+
+    try {
+      const res = await api.post(
+        "/api/users/2fa/initiate",
+        {},
+        localStorage.getItem("tempToken") || ""
+      );
+
+      if (res.success) {
+        setEmailFor2FA(email);
+        setShow2FAPopup(true);
+        toast.success("2FA code sent to your email.", {
+          id: "2fa-send",
+        });
+      } else {
+        toast.error(res.message || "Failed to send 2FA code.", {
+          id: "2fa-send",
+        });
+      }
+    } catch {
+      toast.error("Network error while sending 2FA code.", { id: "2fa-send" });
+    } finally {
+      setIsProcessing(false);
+    }
+  }, []);
+
   const onSubmit: SubmitHandler<LoginFormInputs> = async (formData) => {
     setIsProcessing(true);
     toast.loading("Signing in...", { id: "login" });
 
     try {
-      const res = await api.post<AuthResponse, LoginFormInputs>(
+      const res: any = await api.post<AuthResponse, LoginFormInputs>(
         "/api/auth/login",
         formData
       );
@@ -171,9 +204,18 @@ const Login: React.FC = () => {
           ?.toLowerCase()
           .includes("not verified");
 
+        const is2FARequired = res.message
+          ?.toLowerCase()
+          .includes("two-factor authentication required");
+
         if (isUnverified) {
           toast.error("Account not verified. Sending OTP...");
           await sendOtpToEmail(formData.email);
+        } else if (is2FARequired) {
+          toast.error("2FA verification required. Sending code...");
+          // Store temporary token for 2FA API calls
+          localStorage.setItem("tempToken", "temp");
+          await send2FACode(formData.email);
         } else {
           toast.error(
             res.data?.message ||
@@ -188,6 +230,8 @@ const Login: React.FC = () => {
         const { user, token } = res.data;
         loginUser({ ...user }, token); // Store all user fields and token
         localStorage.setItem("authToken", token);
+        localStorage.setItem("userId", user.id);
+        localStorage.removeItem("tempToken");
 
         toast.success("Login successful!");
 
@@ -285,6 +329,54 @@ const Login: React.FC = () => {
       } else {
         toast.error("An unknown error occurred.", { id: "verify" });
       }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleVerify2FA = async () => {
+    if (
+      !emailFor2FA ||
+      twoFactorOtp === null ||
+      twoFactorOtp.toString().length !== 6
+    ) {
+      toast.error("Enter a valid 6-digit 2FA code.");
+      return;
+    }
+
+    setIsProcessing(true);
+    toast.loading("Verifying 2FA code...", { id: "verify-2fa" });
+
+    try {
+      const res: any = await api.post<
+        AuthResponse,
+        { verificationCode: string }
+      >(
+        "/api/users/2fa/verify",
+        {
+          verificationCode: twoFactorOtp.toString(),
+        },
+        localStorage.getItem("tempToken") || ""
+      );
+
+      if (res.success && res.data?.token && res.data?.user) {
+        const { user, token } = res.data;
+        loginUser({ ...user }, token);
+        localStorage.setItem("authToken", token);
+        localStorage.setItem("userId", user.id);
+        localStorage.removeItem("tempToken");
+
+        toast.success("2FA verification successful!", { id: "verify-2fa" });
+        setShow2FAPopup(false);
+        router.push("/dashboard?token=" + token);
+      } else {
+        toast.error(res.message || "Invalid 2FA code.", {
+          id: "verify-2fa",
+        });
+      }
+    } catch (err) {
+      console.error("2FA verification error:", err);
+      toast.error("Error verifying 2FA code.", { id: "verify-2fa" });
     } finally {
       setIsProcessing(false);
     }
@@ -402,13 +494,14 @@ const Login: React.FC = () => {
         </div>
 
         <p className="mt-4 text-xs text-center text-gray-600">
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <Link href="/auth/signup" className="text-blue-600 hover:underline">
             Sign up
           </Link>
         </p>
       </CenterCard>
 
+      {/* Email Verification OTP Popup */}
       {showOtpPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-lg p-6 w-11/12 max-w-sm">
@@ -421,7 +514,9 @@ const Login: React.FC = () => {
             </p>
             <OTPInput
               value={otp !== null ? otp.toString() : ""}
-              onChange={(value) => setOtp(value ? parseInt(value, 10) : null)}
+              onChange={(value) =>
+                setOtp(value ? Number.parseInt(value, 10) : null)
+              }
               OTPLength={6}
               otpType="number"
               autoFocus
@@ -446,6 +541,56 @@ const Login: React.FC = () => {
               </button>
               <button
                 onClick={() => setShowOtpPopup(false)}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md font-semibold hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {show2FAPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-11/12 max-w-sm">
+            <h5 className="font-bold text-lg text-gray-800 mb-2 text-center">
+              Two-Factor Authentication
+            </h5>
+            <p className="text-sm text-gray-600 mb-4 text-center">
+              Enter the 6-digit 2FA code sent to <strong>{emailFor2FA}</strong>
+            </p>
+            <OTPInput
+              value={twoFactorOtp !== null ? twoFactorOtp.toString() : ""}
+              onChange={(value) =>
+                setTwoFactorOtp(value ? Number.parseInt(value, 10) : null)
+              }
+              OTPLength={6}
+              otpType="number"
+              autoFocus
+              disabled={isProcessing}
+              inputClassName="!w-10 !h-10 !text-lg !mx-1 !rounded-lg !border !border-gray-300 bg-gray-50"
+              containerClassName="flex justify-center mb-4"
+            />
+            <div className="text-center mb-4">
+              <ResendOTP
+                onResend={() => send2FACode(emailFor2FA)}
+                renderTime={renderResendTimer}
+                renderButton={renderResendButton}
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleVerify2FA}
+                className="flex-1 bg-green-600 text-white py-2 cursor-pointer px-4 rounded-md font-semibold hover:bg-green-700 disabled:opacity-50"
+                disabled={isProcessing || twoFactorOtp?.toString().length !== 6}
+              >
+                {isProcessing ? "Verifying..." : "Verify 2FA"}
+              </button>
+              <button
+                onClick={() => {
+                  setShow2FAPopup(false);
+                  localStorage.removeItem("tempToken");
+                }}
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md font-semibold hover:bg-gray-300"
               >
                 Cancel
