@@ -17,7 +17,7 @@ import { api } from "@/lib/api";
 
 // OTP Components
 const OTPInput = dynamic(
-  () => import('otp-input-react').then((mod) => mod.OTPInput || mod.default),
+  () => import("otp-input-react").then((mod) => mod.OTPInput),
   { ssr: false }
 );
 const ResendOTP = dynamic(
@@ -83,8 +83,8 @@ const Login: React.FC = () => {
     const user = useUserStore.getState().user;
 
     if (token && user) {
-      toast("You're already logged in!", { icon: '🔒' });
-      router.push('/dashboard');
+      toast("You're already logged in!", { icon: "🔒" });
+      router.push("/dashboard");
     }
   }, [router]);
 
@@ -194,7 +194,7 @@ const Login: React.FC = () => {
 
     try {
       const res = await api.post<AuthResponse, LoginFormInputs>(
-        '/api/auth/login',
+        "/api/auth/login",
         formData
       );
 
@@ -247,8 +247,8 @@ const Login: React.FC = () => {
         //     ? 'http://localhost:3000'
         //     : '/dashboard';
 
-        localStorage.removeItem('redirectAfterLogin');
-        router.push('/dashboard?token=' + token);
+        localStorage.removeItem("redirectAfterLogin");
+        router.push("/dashboard?token=" + token);
       } else {
         toast.error(res.message || "Login failed. Please try again.");
       }
@@ -356,7 +356,7 @@ const Login: React.FC = () => {
         AuthResponse,
         { verificationCode: string }
       >(
-        '/api/users/2fa/verify',
+        "/api/users/2fa/verify",
         {
           verificationCode: twoFactorOtp.toString(),
         },
@@ -498,11 +498,8 @@ const Login: React.FC = () => {
         </div>
 
         <p className="mt-4 text-xs text-center text-gray-600">
-          Don&apos;t have an account?{' '}
-          <Link
-            href="/auth/signup"
-            className="text-blue-600 hover:underline"
-          >
+          Don&apos;t have an account?{" "}
+          <Link href="/auth/signup" className="text-blue-600 hover:underline">
             Sign up
           </Link>
         </p>
