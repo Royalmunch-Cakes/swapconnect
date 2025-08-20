@@ -47,7 +47,7 @@ interface MobileFormData {
 // Function to fetch recently uploaded products from the backend
 const fetchRecentlyUploaded = async (token?: string): Promise<Product[]> => {
   try {
-    const response = await api.get<{ data: any[] }>(
+    const response: any = await api.get<{ data: any[] }>(
       '/api/products/top?limit=6',
       token
     );
@@ -98,6 +98,9 @@ const MobilePhonesPage: React.FC = () => {
   });
 
   useEffect(() => {
+    if(!token) {
+        return;
+    }
     const loadProducts = async () => {
       const products = await fetchRecentlyUploaded(token);
       setRecentlyUploaded(products);
@@ -175,7 +178,7 @@ const MobilePhonesPage: React.FC = () => {
         return;
       }
 
-      const response = await api.post('/api/bid/calculator', payload, token);
+      const response: any = await api.post('/api/bid/calculator', payload, token);
 
       if (response.success) {
         console.log(response);
@@ -217,7 +220,6 @@ const MobilePhonesPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('hi');
     await calculateValue();
   };
 
