@@ -132,7 +132,7 @@ const MobilePhonesPage: React.FC = () => {
           <div className="w-full md:w-8/12 lg:w-3/4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
               {/* Brand */}
-              <div className="relative mb-3">
+              <div className="relative  mb-3">
                 <label
                   htmlFor="brand"
                   className="block text-gray-700 text-sm font-medium mb-1"
@@ -158,7 +158,7 @@ const MobilePhonesPage: React.FC = () => {
                   <option value="Tecno">Tecno</option>
                   <option value="Other">Other</option>
                 </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+                <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
               </div>
 
               {/* Model */}
@@ -205,7 +205,7 @@ const MobilePhonesPage: React.FC = () => {
                   <option value="512GB">512GB</option>
                   <option value="1TB">1TB</option>
                 </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+                <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
               </div>
 
               {/* RAM Size */}
@@ -233,7 +233,7 @@ const MobilePhonesPage: React.FC = () => {
                   <option value="12GB">12GB</option>
                   <option value="16GB">16GB</option>
                 </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+                <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
               </div>
 
               {/* Battery Capacity */}
@@ -258,7 +258,7 @@ const MobilePhonesPage: React.FC = () => {
                   <option value="6000MAH">6000mAh</option>
                   <option value="Unknown">Unknown</option>
                 </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+                <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
               </div>
 
               {/* Battery Lasting Hours */}
@@ -282,7 +282,7 @@ const MobilePhonesPage: React.FC = () => {
                   <option value="8-12 HRS">8-12 hours</option>
                   <option value="more than 12 HRS">More than 12 hours</option>
                 </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+                <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
               </div>
 
               {/* Phone Age */}
@@ -404,7 +404,7 @@ const MobilePhonesPage: React.FC = () => {
                 <option value="yes">Yes</option>
                 <option value="no">No</option>
               </select>
-              <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+              <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
             </div>
 
             {/* Condition of product's body */}
@@ -428,7 +428,7 @@ const MobilePhonesPage: React.FC = () => {
                 <option value="dents">Dents</option>
                 <option value="cracked">Cracked</option>
               </select>
-              <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+              <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
             </div>
 
             {/* Condition of product's screen */}
@@ -452,7 +452,7 @@ const MobilePhonesPage: React.FC = () => {
                 <option value="cracked">Cracked</option>
                 <option value="shattered">Shattered</option>
               </select>
-              <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+              <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
             </div>
 
             {/* Times visited technician for repair */}
@@ -476,7 +476,7 @@ const MobilePhonesPage: React.FC = () => {
                 <option value="2-3">2 - 3</option>
                 <option value="more-than-3-times">More than three times</option>
               </select>
-              <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+              <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
             </div>
 
             {/* Touch ID / Face ID function normally? */}
@@ -499,7 +499,7 @@ const MobilePhonesPage: React.FC = () => {
                 <option value="no">No</option>
                 <option value="not_applicable">Not Applicable</option>
               </select>
-              <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+              <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
             </div>
           </div>
 
