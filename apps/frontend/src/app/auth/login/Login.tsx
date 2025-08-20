@@ -1,34 +1,34 @@
-'use client';
+"use client";
 
-import type React from 'react';
-import { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm, type SubmitHandler } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import toast, { Toaster } from 'react-hot-toast';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import Link from 'next/link';
-import dynamic from 'next/dynamic';
-import Image from 'next/image';
-import { useUserStore } from '@/stores/AuthStore';
-import CenterCard from '../CenterCard';
-import { api } from '@/lib/api';
+import type React from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import toast, { Toaster } from "react-hot-toast";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import Link from "next/link";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import { useUserStore } from "@/stores/AuthStore";
+import CenterCard from "../CenterCard";
+import { api } from "@/lib/api";
 
 // OTP Components
 const OTPInput = dynamic(
-  () => import('otp-input-react').then((mod) => mod.OTPInput || mod.default),
+  () => import("otp-input-react").then((mod) => mod.OTPInput || mod.default),
   { ssr: false }
 );
 const ResendOTP = dynamic(
-  () => import('otp-input-react').then((mod) => mod.ResendOTP),
+  () => import("otp-input-react").then((mod) => mod.ResendOTP),
   { ssr: false }
 );
 
 // Form Schema
 const loginSchema = yup.object({
-  email: yup.string().email('Invalid email').required('Email is required'),
-  password: yup.string().required('Password is required'),
+  email: yup.string().email("Invalid email").required("Email is required"),
+  password: yup.string().required("Password is required"),
 });
 
 type LoginFormInputs = yup.InferType<typeof loginSchema>;
@@ -67,23 +67,23 @@ const Login: React.FC = () => {
   const [otp, setOtp] = useState<number | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showOtpPopup, setShowOtpPopup] = useState(false);
-  const [emailForVerification, setEmailForVerification] = useState('');
+  const [emailForVerification, setEmailForVerification] = useState("");
   const [callbackError, setCallbackError] = useState<string | null>(null);
   const [callbackSuccess, setCallbackSuccess] = useState<string | null>(null);
   const [show2FAPopup, setShow2FAPopup] = useState(false);
   const [twoFactorOtp, setTwoFactorOtp] = useState<number | null>(null);
-  const [emailFor2FA, setEmailFor2FA] = useState('');
+  const [emailFor2FA, setEmailFor2FA] = useState("");
 
   const router = useRouter();
   const { loginUser } = useUserStore();
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     const user = useUserStore.getState().user;
 
     if (token && user) {
-      toast("You're already logged in!", { icon: '🔒' });
-      router.push('/dashboard');
+      toast("You're already logged in!", { icon: "🔒" });
+      router.push("/dashboard");
     }
   }, [router]);
 
@@ -99,15 +99,15 @@ const Login: React.FC = () => {
 
   // Handle callback messages (success or error) from backend
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const searchParams = new URLSearchParams(window.location.search);
-      setCallbackError(searchParams.get('error'));
-      setCallbackSuccess(searchParams.get('success'));
+      setCallbackError(searchParams.get("error"));
+      setCallbackSuccess(searchParams.get("success"));
 
       // Remove query parameters from the URL
       const url = new URL(window.location.href);
-      url.searchParams.delete('error');
-      url.searchParams.delete('success');
+      url.searchParams.delete("error");
+      url.searchParams.delete("success");
       window.history.replaceState({}, document.title, url.toString());
     }
   }, []);
@@ -124,14 +124,14 @@ const Login: React.FC = () => {
   const sendOtpToEmail = useCallback(
     async (email: string) => {
       setIsProcessing(true);
-      toast.loading('Sending OTP...', { id: 'otp-send' });
+      toast.loading("Sending OTP...", { id: "otp-send" });
 
       try {
         const res = await fetch(
           `${backendUrl}/api/auth/send-verification-otp`,
           {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email }),
           }
         );
@@ -141,16 +141,16 @@ const Login: React.FC = () => {
         if (res.ok) {
           setEmailForVerification(email);
           setShowOtpPopup(true);
-          toast.success(result.message || 'OTP sent successfully.', {
-            id: 'otp-send',
+          toast.success(result.message || "OTP sent successfully.", {
+            id: "otp-send",
           });
         } else {
-          toast.error(result.message || 'Failed to send OTP.', {
-            id: 'otp-send',
+          toast.error(result.message || "Failed to send OTP.", {
+            id: "otp-send",
           });
         }
       } catch {
-        toast.error('Network error while sending OTP.', { id: 'otp-send' });
+        toast.error("Network error while sending OTP.", { id: "otp-send" });
       } finally {
         setIsProcessing(false);
       }
@@ -160,28 +160,28 @@ const Login: React.FC = () => {
 
   const send2FACode = useCallback(async (email: string) => {
     setIsProcessing(true);
-    toast.loading('Sending 2FA code...', { id: '2fa-send' });
+    toast.loading("Sending 2FA code...", { id: "2fa-send" });
 
     try {
       const res = await api.post(
-        '/api/users/2fa/initiate',
+        "/api/users/2fa/initiate",
         {},
-        localStorage.getItem('tempToken') || ''
+        localStorage.getItem("tempToken") || ""
       );
 
       if (res.success) {
         setEmailFor2FA(email);
         setShow2FAPopup(true);
-        toast.success('2FA code sent to your email.', {
-          id: '2fa-send',
+        toast.success("2FA code sent to your email.", {
+          id: "2fa-send",
         });
       } else {
-        toast.error(res.message || 'Failed to send 2FA code.', {
-          id: '2fa-send',
+        toast.error(res.message || "Failed to send 2FA code.", {
+          id: "2fa-send",
         });
       }
     } catch {
-      toast.error('Network error while sending 2FA code.', { id: '2fa-send' });
+      toast.error("Network error while sending 2FA code.", { id: "2fa-send" });
     } finally {
       setIsProcessing(false);
     }
@@ -189,37 +189,37 @@ const Login: React.FC = () => {
 
   const onSubmit: SubmitHandler<LoginFormInputs> = async (formData) => {
     setIsProcessing(true);
-    toast.loading('Signing in...', { id: 'login' });
+    toast.loading("Signing in...", { id: "login" });
 
     try {
-      const res = await api.post<AuthResponse, LoginFormInputs>(
-        '/api/auth/login',
+      const res: any = await api.post<AuthResponse, LoginFormInputs>(
+        "/api/auth/login",
         formData
       );
 
-      toast.dismiss('login');
+      toast.dismiss("login");
 
       if (res.status === 401) {
         const isUnverified = res.message
           ?.toLowerCase()
-          .includes('not verified');
+          .includes("not verified");
 
         const is2FARequired = res.message
           ?.toLowerCase()
-          .includes('two-factor authentication required');
+          .includes("two-factor authentication required");
 
         if (isUnverified) {
-          toast.error('Account not verified. Sending OTP...');
+          toast.error("Account not verified. Sending OTP...");
           await sendOtpToEmail(formData.email);
         } else if (is2FARequired) {
-          toast.error('2FA verification required. Sending code...');
+          toast.error("2FA verification required. Sending code...");
           // Store temporary token for 2FA API calls
-          localStorage.setItem('tempToken', 'temp');
+          localStorage.setItem("tempToken", "temp");
           await send2FACode(formData.email);
         } else {
           toast.error(
             res.data?.message ||
-              'Unauthorized access. Please check your credentials.'
+              "Unauthorized access. Please check your credentials."
           );
         }
         setIsProcessing(false);
@@ -229,86 +229,86 @@ const Login: React.FC = () => {
       if (res.success && res.data?.token && res.data?.user?.verified) {
         const { user, token } = res.data;
         loginUser({ ...user }, token); // Store all user fields and token
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('userId', user.id);
-        localStorage.removeItem('tempToken');
+        localStorage.setItem("authToken", token);
+        localStorage.setItem("userId", user.id);
+        localStorage.removeItem("tempToken");
 
-        toast.success('Login successful!');
+        toast.success("Login successful!");
 
         // Determine redirect URL based on environment
         const hostname = window.location.hostname;
         console.log(hostname);
         const redirectAfterLogin =
-          hostname === 'localhost' || hostname === '127.0.0.1'
-            ? 'http://localhost:3000'
-            : '/dashboard';
+          hostname === "localhost" || hostname === "127.0.0.1"
+            ? "http://localhost:3000"
+            : "/dashboard";
 
-        localStorage.removeItem('redirectAfterLogin');
-        router.push('/dashboard?token=' + token);
+        localStorage.removeItem("redirectAfterLogin");
+        router.push("/dashboard?token=" + token);
       } else {
-        toast.error(res.message || 'Login failed. Please try again.');
+        toast.error(res.message || "Login failed. Please try again.");
       }
     } catch (err) {
-      console.error('Login error:', err);
-      toast.error('An unexpected error occurred during login.');
+      console.error("Login error:", err);
+      toast.error("An unexpected error occurred during login.");
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleGoogleSignIn = () => {
-    toast.loading('Redirecting to Google...', { id: 'google-redirect' });
+    toast.loading("Redirecting to Google...", { id: "google-redirect" });
     try {
       // Determine redirect URL based on environment
       const hostname = window.location.hostname;
       const redirectUrl =
-        hostname === 'localhost' || hostname === '127.0.0.1'
-          ? 'http://localhost:3000'
-          : '/dashboard'; // Default live URL redirect
+        hostname === "localhost" || hostname === "127.0.0.1"
+          ? "http://localhost:3000"
+          : "/dashboard"; // Default live URL redirect
 
       window.location.href = `${backendUrl}/api/auth/google/login?redirect=${encodeURIComponent(
         redirectUrl
       )}`;
     } catch (error) {
-      console.error('Error initiating Google sign-in redirect:', error);
-      toast.error('Failed to start Google sign-in. Please try again.', {
-        id: 'google-redirect',
+      console.error("Error initiating Google sign-in redirect:", error);
+      toast.error("Failed to start Google sign-in. Please try again.", {
+        id: "google-redirect",
       });
     }
   };
 
   const handleVerifyOtp = async () => {
     if (!emailForVerification || otp === null || otp.toString().length !== 6) {
-      toast.error('Enter a valid 6-digit OTP.');
+      toast.error("Enter a valid 6-digit OTP.");
       return;
     }
 
     setIsProcessing(true);
-    toast.loading('Verifying OTP...', { id: 'verify' });
+    toast.loading("Verifying OTP...", { id: "verify" });
 
     try {
       const res = await api.post<
         { message: string },
         { email: string; code: string }
-      >('/api/auth/verify-email', {
+      >("/api/auth/verify-email", {
         email: emailForVerification.trim(),
         code: otp.toString(),
       });
 
       if (
         res.status === 200 &&
-        res.message === 'Account verified successfully'
+        res.message === "Account verified successfully"
       ) {
-        toast.success('Email verified successfully!', { id: 'verify' });
+        toast.success("Email verified successfully!", { id: "verify" });
         setShowOtpPopup(false);
-        router.push('/auth/login');
+        router.push("/auth/login");
       } else {
-        toast.error(res.message || 'Unexpected response from server.', {
-          id: 'verify',
+        toast.error(res.message || "Unexpected response from server.", {
+          id: "verify",
         });
       }
     } catch (err: unknown) {
-      if (err && typeof err === 'object' && 'response' in err) {
+      if (err && typeof err === "object" && "response" in err) {
         const errorResponse = err as {
           response?: { status: number };
         };
@@ -316,18 +316,18 @@ const Login: React.FC = () => {
         const status = errorResponse.response?.status;
 
         if (status === 400) {
-          toast.error('Invalid OTP.', { id: 'verify' });
+          toast.error("Invalid OTP.", { id: "verify" });
         } else if (status === 404) {
-          toast.error('Account with this email not found.', { id: 'verify' });
+          toast.error("Account with this email not found.", { id: "verify" });
         } else if (status === 500) {
-          toast.error('Server error. Please try again later.', {
-            id: 'verify',
+          toast.error("Server error. Please try again later.", {
+            id: "verify",
           });
         } else {
-          toast.error('An unexpected error occurred.', { id: 'verify' });
+          toast.error("An unexpected error occurred.", { id: "verify" });
         }
       } else {
-        toast.error('An unknown error occurred.', { id: 'verify' });
+        toast.error("An unknown error occurred.", { id: "verify" });
       }
     } finally {
       setIsProcessing(false);
@@ -340,47 +340,50 @@ const Login: React.FC = () => {
       twoFactorOtp === null ||
       twoFactorOtp.toString().length !== 6
     ) {
-      toast.error('Enter a valid 6-digit 2FA code.');
+      toast.error("Enter a valid 6-digit 2FA code.");
       return;
     }
 
     setIsProcessing(true);
-    toast.loading('Verifying 2FA code...', { id: 'verify-2fa' });
+    toast.loading("Verifying 2FA code...", { id: "verify-2fa" });
 
     try {
-      const res = await api.post<AuthResponse, { verificationCode: string }>(
-        '/api/users/2fa/verify',
+      const res: any = await api.post<
+        AuthResponse,
+        { verificationCode: string }
+      >(
+        "/api/users/2fa/verify",
         {
           verificationCode: twoFactorOtp.toString(),
         },
-        localStorage.getItem('tempToken') || ''
+        localStorage.getItem("tempToken") || ""
       );
 
       if (res.success && res.data?.token && res.data?.user) {
         const { user, token } = res.data;
         loginUser({ ...user }, token);
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('userId', user.id);
-        localStorage.removeItem('tempToken');
+        localStorage.setItem("authToken", token);
+        localStorage.setItem("userId", user.id);
+        localStorage.removeItem("tempToken");
 
-        toast.success('2FA verification successful!', { id: 'verify-2fa' });
+        toast.success("2FA verification successful!", { id: "verify-2fa" });
         setShow2FAPopup(false);
-        router.push('/dashboard?token=' + token);
+        router.push("/dashboard?token=" + token);
       } else {
-        toast.error(res.message || 'Invalid 2FA code.', {
-          id: 'verify-2fa',
+        toast.error(res.message || "Invalid 2FA code.", {
+          id: "verify-2fa",
         });
       }
     } catch (err) {
-      console.error('2FA verification error:', err);
-      toast.error('Error verifying 2FA code.', { id: 'verify-2fa' });
+      console.error("2FA verification error:", err);
+      toast.error("Error verifying 2FA code.", { id: "verify-2fa" });
     } finally {
       setIsProcessing(false);
     }
   };
 
   const inputClass =
-    'w-full p-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 focus:outline-none';
+    "w-full p-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 focus:outline-none";
 
   const renderResendTimer = (props?: { remainingTime?: number }) => {
     const remaining = props?.remainingTime ?? 0;
@@ -419,14 +422,11 @@ const Login: React.FC = () => {
       >
         <h4 className="text-2xl font-bold text-gray-800 mb-2">Welcome back!</h4>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <input
             type="email"
             placeholder="Email"
-            {...register('email')}
+            {...register("email")}
             className={inputClass}
             disabled={isProcessing}
           />
@@ -436,9 +436,9 @@ const Login: React.FC = () => {
 
           <div className="relative">
             <input
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               placeholder="Password"
-              {...register('password')}
+              {...register("password")}
               className={`${inputClass} pr-10`}
               disabled={isProcessing}
             />
@@ -466,7 +466,7 @@ const Login: React.FC = () => {
                 Signing In...
               </>
             ) : (
-              'Sign In'
+              "Sign In"
             )}
           </button>
         </form>
@@ -494,11 +494,8 @@ const Login: React.FC = () => {
         </div>
 
         <p className="mt-4 text-xs text-center text-gray-600">
-          Don't have an account?{' '}
-          <Link
-            href="/auth/signup"
-            className="text-blue-600 hover:underline"
-          >
+          Don't have an account?{" "}
+          <Link href="/auth/signup" className="text-blue-600 hover:underline">
             Sign up
           </Link>
         </p>
@@ -512,11 +509,11 @@ const Login: React.FC = () => {
               Verify your email
             </h5>
             <p className="text-sm text-gray-600 mb-4 text-center">
-              Enter the 6-digit OTP sent to{' '}
+              Enter the 6-digit OTP sent to{" "}
               <strong>{emailForVerification}</strong>
             </p>
             <OTPInput
-              value={otp !== null ? otp.toString() : ''}
+              value={otp !== null ? otp.toString() : ""}
               onChange={(value) =>
                 setOtp(value ? Number.parseInt(value, 10) : null)
               }
@@ -540,7 +537,7 @@ const Login: React.FC = () => {
                 className="flex-1 bg-blue-600 text-white py-2 cursor-pointer px-4 rounded-md font-semibold hover:bg-blue-700 disabled:opacity-50"
                 disabled={isProcessing || otp?.toString().length !== 6}
               >
-                {isProcessing ? 'Verifying...' : 'Verify OTP'}
+                {isProcessing ? "Verifying..." : "Verify OTP"}
               </button>
               <button
                 onClick={() => setShowOtpPopup(false)}
@@ -563,7 +560,7 @@ const Login: React.FC = () => {
               Enter the 6-digit 2FA code sent to <strong>{emailFor2FA}</strong>
             </p>
             <OTPInput
-              value={twoFactorOtp !== null ? twoFactorOtp.toString() : ''}
+              value={twoFactorOtp !== null ? twoFactorOtp.toString() : ""}
               onChange={(value) =>
                 setTwoFactorOtp(value ? Number.parseInt(value, 10) : null)
               }
@@ -587,12 +584,12 @@ const Login: React.FC = () => {
                 className="flex-1 bg-green-600 text-white py-2 cursor-pointer px-4 rounded-md font-semibold hover:bg-green-700 disabled:opacity-50"
                 disabled={isProcessing || twoFactorOtp?.toString().length !== 6}
               >
-                {isProcessing ? 'Verifying...' : 'Verify 2FA'}
+                {isProcessing ? "Verifying..." : "Verify 2FA"}
               </button>
               <button
                 onClick={() => {
                   setShow2FAPopup(false);
-                  localStorage.removeItem('tempToken');
+                  localStorage.removeItem("tempToken");
                 }}
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md font-semibold hover:bg-gray-300"
               >
