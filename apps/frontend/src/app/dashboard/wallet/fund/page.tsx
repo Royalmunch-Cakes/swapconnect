@@ -1,15 +1,15 @@
-'use client';
-import type React from 'react';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Wallet, CreditCard } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import Button from '@/components/ui/Button';
-import { useAuthToken } from '@/hooks/useAuthToken';
-import { API_URL } from '@/lib/config';
+"use client";
+import type React from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Wallet, CreditCard } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import Button from "@/components/ui/Button";
+import { useAuthToken } from "@/hooks/useAuthToken";
+import { API_URL } from "@/lib/config";
 
 const FundWalletPage = () => {
-  const [amount, setAmount] = useState<string>('');
+  const [amount, setAmount] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +19,7 @@ const FundWalletPage = () => {
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // Only allow numbers and decimal point
-    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+    if (value === "" || /^\d*\.?\d*$/.test(value)) {
       setAmount(value);
       setError(null);
     }
@@ -28,15 +28,15 @@ const FundWalletPage = () => {
   const validateAmount = (): boolean => {
     const numAmount = Number.parseFloat(amount);
     if (!amount || isNaN(numAmount)) {
-      setError('Please enter a valid amount');
+      setError("Please enter a valid amount");
       return false;
     }
     if (numAmount < 100) {
-      setError('Minimum funding amount is ₦100');
+      setError("Minimum funding amount is ₦100");
       return false;
     }
     if (numAmount > 1000000) {
-      setError('Maximum funding amount is ₦1,000,000');
+      setError("Maximum funding amount is ₦1,000,000");
       return false;
     }
     return true;
@@ -45,7 +45,7 @@ const FundWalletPage = () => {
   const handleFundWallet = async () => {
     if (!validateAmount()) return;
     if (!token) {
-      setError('Authentication required. Please log in again.');
+      setError("Authentication required. Please log in again.");
       return;
     }
 
@@ -53,30 +53,30 @@ const FundWalletPage = () => {
     setError(null);
 
     try {
-      const userId = JSON.parse(atob(token.split('.')[1])).id;
+      const userId = JSON.parse(atob(token.split(".")[1])).id;
 
       const response = await fetch(`${API_URL}/api/transactions/deposit`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           userId,
           amount: Number.parseFloat(amount),
-          method: 'paystack',
+          method: "paystack",
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to initiate payment');
+        throw new Error(data.error || "Failed to initiate payment");
       }
 
       if (data.paymentUrl) {
         localStorage.setItem(
-          'funding_attempt',
+          "funding_attempt",
           JSON.stringify({
             amount: Number.parseFloat(amount),
             timestamp: Date.now(),
@@ -85,14 +85,14 @@ const FundWalletPage = () => {
         );
         window.location.href = data.paymentUrl;
       } else {
-        throw new Error('Payment URL not received');
+        throw new Error("Payment URL not received");
       }
     } catch (err) {
-      console.error('Fund wallet error:', err);
+      console.error("Fund wallet error:", err);
       setError(
         err instanceof Error
           ? err.message
-          : 'An error occurred while processing your request'
+          : "An error occurred while processing your request"
       );
     } finally {
       setIsLoading(false);
@@ -114,10 +114,7 @@ const FundWalletPage = () => {
           className="flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-sm hover:shadow-md transition-shadow"
           disabled={isLoading}
         >
-          <ArrowLeft
-            size={20}
-            className="text-[#353535]"
-          />
+          <ArrowLeft size={20} className="text-[#353535]" />
         </button>
         <div>
           <h1 className="text-2xl font-bold text-[#353535]">Fund Wallet</h1>
@@ -131,10 +128,7 @@ const FundWalletPage = () => {
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-[#037F44] bg-opacity-10 rounded-full flex items-center justify-center">
-              <Wallet
-                size={24}
-                className="text-[#037F44]"
-              />
+              <Wallet size={24} className="text-[#037F44]" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-[#353535]">
@@ -190,10 +184,7 @@ const FundWalletPage = () => {
 
           <div className="bg-[#F8F9FB] rounded-lg p-4 mb-6">
             <div className="flex items-center gap-3">
-              <CreditCard
-                size={20}
-                className="text-[#037F44]"
-              />
+              <CreditCard size={20} className="text-[#037F44]" />
               <div>
                 <p className="text-sm font-medium text-[#353535]">
                   Payment Method
@@ -218,7 +209,7 @@ const FundWalletPage = () => {
               </div>
             ) : (
               `Fund Wallet with ₦${
-                amount ? Number.parseFloat(amount).toLocaleString() : '0'
+                amount ? Number.parseFloat(amount).toLocaleString() : "0"
               }`
             )}
           </Button>
@@ -234,8 +225,8 @@ const FundWalletPage = () => {
                 Secure Payment
               </p>
               <p className="text-xs text-blue-600">
-                Your payment is processed securely through Paystack. You'll be
-                redirected to complete the payment and then returned to your
+                Your payment is processed securely through Paystack. You&apos;ll
+                be redirected to complete the payment and then returned to your
                 wallet.
               </p>
             </div>
@@ -244,7 +235,7 @@ const FundWalletPage = () => {
 
         <div className="text-center">
           <button
-            onClick={() => router.push('/dashboard/wallet/fund/test')}
+            onClick={() => router.push("/dashboard/wallet/fund/test")}
             className="text-xs text-[#848484] hover:text-[#037F44] underline"
           >
             Test Fund Flow

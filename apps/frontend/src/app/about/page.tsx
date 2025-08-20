@@ -107,10 +107,13 @@ const About = () => {
 
       {/* Join SwapConnect */}
       <section className="max-w-4xl mx-auto mt-10 text-center">
-        <p className="uppercase font-bold mb-2">
+        <a
+          href="https://shorturl.at/ysvrI"
+          className="uppercase font-bold mb-2"
+        >
           join <span style={{ color: "#d7a825" }}>Swap</span>
           <span style={{ color: "#037f44" }}>Connect</span> and spread the word!
-        </p>
+        </a>
         <p className="italic mb-4">coming soon...</p>
         <div className="flex justify-center gap-4">
           <Image

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import Image from 'next/image';
-import { api } from '@/lib/api';
-import { useAuthToken } from '@/hooks/useAuthToken';
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import Image from "next/image";
+import { api } from "@/lib/api";
+import { useAuthToken } from "@/hooks/useAuthToken";
 
 interface Product {
   id: number;
@@ -18,17 +18,17 @@ interface Product {
   isActive: boolean;
   swappable: boolean;
   installmentAvailable: boolean;
-installmentPlans?: {
-  plans: Array<{
-    name: string;
-    numberOfPayments: number;
-    paymentInterval: string;
-    intervalCount: number;
-    interestRate?: number;
-    downPayment?: number;
-    totalAmount: number;
-  }>;
-};
+  installmentPlans?: {
+    plans: Array<{
+      name: string;
+      numberOfPayments: number;
+      paymentInterval: string;
+      intervalCount: number;
+      interestRate?: number;
+      downPayment?: number;
+      totalAmount: number;
+    }>;
+  };
   stock: number;
   createdAt: string;
   updatedAt: string;
@@ -51,7 +51,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string>('');
+  const [selectedImage, setSelectedImage] = useState<string>("");
 
   useEffect(() => {
     if (productId) {
@@ -64,6 +64,9 @@ export default function ProductDetailPage() {
       setLoading(true);
       setError(null);
 
+      if (!token) {
+        return;
+      }
       const response = await api.get<Product>(
         `/api/products/${productId}`,
         token
@@ -73,20 +76,20 @@ export default function ProductDetailPage() {
         setProduct(response.data);
         setSelectedImage(response.data.imageUrl);
       } else {
-        throw new Error(response.error || 'Product not found');
+        throw new Error(response.error || "Product not found");
       }
     } catch (err) {
-      console.error('Error fetching product:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load product');
+      console.error("Error fetching product:", err);
+      setError(err instanceof Error ? err.message : "Failed to load product");
     } finally {
       setLoading(false);
     }
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
       minimumFractionDigits: 0,
     }).format(price);
   };
@@ -107,7 +110,7 @@ export default function ProductDetailPage() {
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative inline-block mb-4">
             <strong className="font-bold">Error!</strong>
             <span className="block sm:inline ml-2">
-              {error || 'Product not found'}
+              {error || "Product not found"}
             </span>
           </div>
           <button
@@ -137,16 +140,16 @@ export default function ProductDetailPage() {
                 <Image
                   src={
                     selectedImage ||
-                    '/placeholder.svg?height=384&width=512&query=product' ||
-                    '/placeholder.svg'
+                    "/placeholder.svg?height=384&width=512&query=product" ||
+                    "/placeholder.svg"
                   }
                   alt={product.name}
                   fill
-                  style={{ objectFit: 'contain' }}
+                  style={{ objectFit: "contain" }}
                   className="p-4"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = '/placeholder.svg?height=384&width=512';
+                    target.src = "/placeholder.svg?height=384&width=512";
                   }}
                 />
               </div>
@@ -160,16 +163,16 @@ export default function ProductDetailPage() {
                       onClick={() => setSelectedImage(image)}
                       className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
                         selectedImage === image
-                          ? 'border-green-500'
-                          : 'border-gray-200'
+                          ? "border-green-500"
+                          : "border-gray-200"
                       }`}
                     >
                       <Image
-                        src={image || '/placeholder.svg'}
+                        src={image || "/placeholder.svg"}
                         alt={`${product.name} ${index + 1}`}
                         width={80}
                         height={80}
-                        style={{ objectFit: 'contain' }}
+                        style={{ objectFit: "contain" }}
                         className="w-full h-full p-1"
                       />
                     </button>
@@ -244,32 +247,30 @@ export default function ProductDetailPage() {
                     Installment Plans
                   </h3>
                   <div className="space-y-2">
-                    {product.installmentPlans && product.installmentPlans.plans.map((plan, index) => (
-                      <div
-                        key={index}
-                        className="border rounded-lg p-3"
-                      >
-                        <h4 className="font-medium">{plan.name}</h4>
-                        <p className="text-sm text-gray-600">
-                          {plan.numberOfPayments} payments of{' '}
-                          {formatPrice(
-                            plan.totalAmount / plan.numberOfPayments
+                    {product.installmentPlans &&
+                      product.installmentPlans.plans.map((plan, index) => (
+                        <div key={index} className="border rounded-lg p-3">
+                          <h4 className="font-medium">{plan.name}</h4>
+                          <p className="text-sm text-gray-600">
+                            {plan.numberOfPayments} payments of{" "}
+                            {formatPrice(
+                              plan.totalAmount / plan.numberOfPayments
+                            )}
+                            {" every "}
+                            {plan.intervalCount} {plan.paymentInterval}(s)
+                          </p>
+                          {plan.downPayment && (
+                            <p className="text-sm text-gray-600">
+                              Down payment: {plan.downPayment}%
+                            </p>
                           )}
-                          {' every '}
-                          {plan.intervalCount} {plan.paymentInterval}(s)
-                        </p>
-                        {plan.downPayment && (
-                          <p className="text-sm text-gray-600">
-                            Down payment: {plan.downPayment}%
-                          </p>
-                        )}
-                        {plan.interestRate && (
-                          <p className="text-sm text-gray-600">
-                            Interest rate: {plan.interestRate}%
-                          </p>
-                        )}
-                      </div>
-                    ))}
+                          {plan.interestRate && (
+                            <p className="text-sm text-gray-600">
+                              Interest rate: {plan.interestRate}%
+                            </p>
+                          )}
+                        </div>
+                      ))}
                   </div>
                 </div>
               )}
@@ -283,10 +284,7 @@ export default function ProductDetailPage() {
                       {product.Account.firstName} {product.Account.lastName}
                     </p>
                     {product.Account.verified && (
-                      <span
-                        className="text-blue-500"
-                        title="Verified Seller"
-                      >
+                      <span className="text-blue-500" title="Verified Seller">
                         ✓
                       </span>
                     )}
@@ -313,7 +311,7 @@ export default function ProductDetailPage() {
                   disabled={product.stock === 0}
                   className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                 >
-                  {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                  {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
                 </button>
 
                 {product.swappable && (

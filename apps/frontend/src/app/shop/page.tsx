@@ -6,7 +6,7 @@ import CategorySearch from "./CategorySearch";
 import ProductsDisplay from "./ProductsDisplay";
 
 const ShopPage = () => (
-  <div className="max-w-6xl">
+  <div className="mx-5 max-w-6xl">
     <CategorySearch />
     <ProductsDisplay />
   </div>

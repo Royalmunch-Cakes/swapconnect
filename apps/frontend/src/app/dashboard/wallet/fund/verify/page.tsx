@@ -1,35 +1,42 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import Button from '@/components/ui/Button';
-import { useAuthToken } from '@/hooks/useAuthToken';
-import { API_URL } from '@/lib/config';
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
+import Button from "@/components/ui/Button";
+import { useAuthToken } from "@/hooks/useAuthToken";
+import { API_URL } from "@/lib/config";
+
+type TransactionDetails = {
+  amount?: number;
+  reference?: string;
+  newBalance?: number;
+  // Add other fields if needed
+};
 
 const VerifyDepositPage = () => {
-  const [status, setStatus] = useState<'loading' | 'success' | 'failed'>(
-    'loading'
+  const [status, setStatus] = useState<"loading" | "success" | "failed">(
+    "loading"
   );
-  const [message, setMessage] = useState<string>('');
-  const [transactionDetails, setTransactionDetails] = useState<any>(null);
-
+  const [message, setMessage] = useState<string>("");
+  const [transactionDetails, setTransactionDetails] =
+    useState<TransactionDetails | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = useAuthToken();
 
   useEffect(() => {
     const verifyPayment = async () => {
-      const reference = searchParams.get('reference');
+      const reference = searchParams.get("reference");
 
       if (!reference) {
-        setStatus('failed');
-        setMessage('Payment reference not found');
+        setStatus("failed");
+        setMessage("Payment reference not found");
         return;
       }
 
       if (!token) {
-        setStatus('failed');
-        setMessage('Authentication required');
+        setStatus("failed");
+        setMessage("Authentication required");
         return;
       }
 
@@ -37,9 +44,9 @@ const VerifyDepositPage = () => {
         const response = await fetch(
           `${API_URL}/api/transactions/verify-deposit?reference=${reference}`,
           {
-            method: 'GET',
+            method: "GET",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
           }
@@ -48,18 +55,18 @@ const VerifyDepositPage = () => {
         const data = await response.json();
 
         if (response.ok) {
-          setStatus('success');
-          setMessage(data.message || 'Payment verified successfully');
+          setStatus("success");
+          setMessage(data.message || "Payment verified successfully");
           setTransactionDetails(data.transaction);
-          localStorage.setItem('wallet_updated', Date.now().toString());
+          localStorage.setItem("wallet_updated", Date.now().toString());
         } else {
-          setStatus('failed');
-          setMessage(data.error || 'Payment verification failed');
+          setStatus("failed");
+          setMessage(data.error || "Payment verification failed");
         }
       } catch (error) {
-        console.error('Verification error:', error);
-        setStatus('failed');
-        setMessage('An error occurred while verifying payment');
+        console.error("Verification error:", error);
+        setStatus("failed");
+        setMessage("An error occurred while verifying payment");
       }
     };
 
@@ -67,14 +74,14 @@ const VerifyDepositPage = () => {
   }, [searchParams, token]);
 
   const handleContinue = () => {
-    router.push('/dashboard/wallet');
+    router.push("/dashboard/wallet");
   };
 
   return (
     <div className="pt-[110px] md:pl-[252px] pl-8 pr-8 pb-8 min-h-screen bg-[#F8F9FB] flex items-center justify-center">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-          {status === 'loading' && (
+          {status === "loading" && (
             <>
               <Loader2
                 size={64}
@@ -89,12 +96,9 @@ const VerifyDepositPage = () => {
             </>
           )}
 
-          {status === 'success' && (
+          {status === "success" && (
             <>
-              <CheckCircle
-                size={64}
-                className="text-[#037F44] mx-auto mb-4"
-              />
+              <CheckCircle size={64} className="text-[#037F44] mx-auto mb-4" />
               <h2 className="text-xl font-semibold text-[#353535] mb-2">
                 Payment Successful!
               </h2>
@@ -130,12 +134,9 @@ const VerifyDepositPage = () => {
             </>
           )}
 
-          {status === 'failed' && (
+          {status === "failed" && (
             <>
-              <XCircle
-                size={64}
-                className="text-red-500 mx-auto mb-4"
-              />
+              <XCircle size={64} className="text-red-500 mx-auto mb-4" />
               <h2 className="text-xl font-semibold text-[#353535] mb-2">
                 Payment Failed
               </h2>
@@ -143,19 +144,19 @@ const VerifyDepositPage = () => {
             </>
           )}
 
-          {status !== 'loading' && (
+          {status !== "loading" && (
             <div className="space-y-3">
               <Button
                 onClick={handleContinue}
                 variant="success"
                 className="w-full bg-[#037F44] hover:bg-[#025a32]"
               >
-                {status === 'success' ? 'Continue to Wallet' : 'Back to Wallet'}
+                {status === "success" ? "Continue to Wallet" : "Back to Wallet"}
               </Button>
 
-              {status === 'failed' && (
+              {status === "failed" && (
                 <Button
-                  onClick={() => router.push('/dashboard/wallet/fund')}
+                  onClick={() => router.push("/dashboard/wallet/fund")}
                   variant="outline-secondary"
                   className="w-full"
                 >

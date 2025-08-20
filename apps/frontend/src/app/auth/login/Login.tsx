@@ -17,7 +17,7 @@ import { api } from "@/lib/api";
 
 // OTP Components
 const OTPInput = dynamic(
-  () => import("otp-input-react").then((mod) => mod.OTPInput || mod.default),
+  () => import("otp-input-react").then((mod) => mod.OTPInput),
   { ssr: false }
 );
 const ResendOTP = dynamic(
@@ -31,7 +31,10 @@ const loginSchema = yup.object({
   password: yup.string().required("Password is required"),
 });
 
-type LoginFormInputs = yup.InferType<typeof loginSchema>;
+type LoginFormInputs = {
+  email: string;
+  password: string;
+};
 
 type AuthUser = {
   id: number;
@@ -56,6 +59,8 @@ type AuthUser = {
 
 type AuthResponse = {
   message: string;
+  success?: boolean;
+  status?: number;
   data?: {
     token: string;
     user: AuthUser;
@@ -82,7 +87,7 @@ const Login: React.FC = () => {
     const user = useUserStore.getState().user;
 
     if (token && user) {
-      toast("You're already logged in!", { icon: "🔒" });
+      toast("You&apos;re already logged in!", { icon: "🔒" });
       router.push("/dashboard");
     }
   }, [router]);
@@ -192,7 +197,7 @@ const Login: React.FC = () => {
     toast.loading("Signing in...", { id: "login" });
 
     try {
-      const res: any = await api.post<AuthResponse, LoginFormInputs>(
+      const res = await api.post<AuthResponse, LoginFormInputs>(
         "/api/auth/login",
         formData
       );
@@ -225,9 +230,12 @@ const Login: React.FC = () => {
         setIsProcessing(false);
         return;
       }
-
+      if (res.success) {
+        if (!res.data?.token) return;
+        if (!res.data?.user) return;
+      }
       if (res.success && res.data?.token && res.data?.user?.verified) {
-        const { user, token } = res.data;
+        const { user, token } = res.data!;
         loginUser({ ...user }, token); // Store all user fields and token
         localStorage.setItem("authToken", token);
         localStorage.setItem("userId", user.id);
@@ -243,7 +251,7 @@ const Login: React.FC = () => {
             ? "http://localhost:3000"
             : "/dashboard";
 
-        localStorage.removeItem("redirectAfterLogin");
+        // localStorage.removeItem("redirectAfterLogin");
         router.push("/dashboard?token=" + token);
       } else {
         toast.error(res.message || "Login failed. Please try again.");
@@ -348,10 +356,7 @@ const Login: React.FC = () => {
     toast.loading("Verifying 2FA code...", { id: "verify-2fa" });
 
     try {
-      const res: any = await api.post<
-        AuthResponse,
-        { verificationCode: string }
-      >(
+      const res = await api.post<AuthResponse, { verificationCode: string }>(
         "/api/users/2fa/verify",
         {
           verificationCode: twoFactorOtp.toString(),
@@ -494,7 +499,7 @@ const Login: React.FC = () => {
         </div>
 
         <p className="mt-4 text-xs text-center text-gray-600">
-          Don't have an account?{" "}
+          Don't have an account?
           <Link href="/auth/signup" className="text-blue-600 hover:underline">
             Sign up
           </Link>

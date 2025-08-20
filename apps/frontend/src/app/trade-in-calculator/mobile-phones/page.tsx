@@ -3,7 +3,7 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useUserStore } from "@/stores/AuthStore";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import Link from "next/link";
 import Image from "next/image";
@@ -47,10 +47,8 @@ interface MobileFormData {
 // Function to fetch recently uploaded products from the backend
 const fetchRecentlyUploaded = async (token?: string): Promise<Product[]> => {
   try {
-    const response = await api.get<{ data: any[] }>(
-      "/api/products/top?limit=6",
     const response: any = await api.get<{ data: any[] }>(
-      '/api/products/top?limit=6',
+      "/api/products/top?limit=6",
       token
     );
     if (response.success && response.data) {
@@ -74,8 +72,8 @@ const fetchRecentlyUploaded = async (token?: string): Promise<Product[]> => {
 };
 
 const MobilePhonesPage: React.FC = () => {
-  const router = useRouter();
-  const { user, token, isAuthenticated } = useUserStore();
+  // const router = useRouter();
+  const { token } = useUserStore();
 
   const [recentlyUploaded, setRecentlyUploaded] = useState<Product[]>([]);
   const [startIndex, setStartIndex] = useState(0);
@@ -180,7 +178,11 @@ const MobilePhonesPage: React.FC = () => {
         return;
       }
 
-      const response = await api.post("/api/bid/calculator", payload, token);
+      const response: any = await api.post(
+        "/api/bid/calculator",
+        payload,
+        token
+      );
 
       if (response.success) {
         console.log(response);

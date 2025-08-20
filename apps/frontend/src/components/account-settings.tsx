@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Shield,
   ShieldCheck,
   Mail,
   Loader2,
   AlertTriangle,
-} from 'lucide-react';
-import { api } from '@/lib/api';
-import { useAuthToken } from '@/hooks/useAuthToken';
+} from "lucide-react";
+import { api } from "@/lib/api";
+import { useAuthToken } from "@/hooks/useAuthToken";
 
 interface User2FASettings {
   twoFactorEnabled: boolean;
@@ -22,7 +22,7 @@ export default function AccountSettings() {
   const [error, setError] = useState<string | null>(null);
   const [toggling, setToggling] = useState(false);
   const [showOTPInput, setShowOTPInput] = useState(false);
-  const [otpCode, setOtpCode] = useState('');
+  const [otpCode, setOtpCode] = useState("");
   const [verifying, setVerifying] = useState(false);
   const [sendingOTP, setSendingOTP] = useState(false);
 
@@ -33,18 +33,25 @@ export default function AccountSettings() {
 
       try {
         setError(null);
-        const response = await api.get('/api/users/', token);
+        const response = await api.get<{ twoFactorEnabled?: boolean }>(
+          "/api/users/",
+          token
+        );
 
-        if (response.success && response.data) {
+        if (
+          response.success &&
+          response.data &&
+          typeof response.data.twoFactorEnabled === "boolean"
+        ) {
           setUser2FA({
-            twoFactorEnabled: response.data.twoFactorEnabled || false,
+            twoFactorEnabled: response.data.twoFactorEnabled,
           });
         } else {
-          setError('Failed to fetch account settings');
+          setError("Failed to fetch account settings");
         }
       } catch (err) {
-        setError('Error fetching account settings');
-        console.error('Error fetching user settings:', err);
+        setError("Error fetching account settings");
+        console.error("Error fetching user settings:", err);
       } finally {
         setLoading(false);
       }
@@ -58,7 +65,7 @@ export default function AccountSettings() {
 
     setToggling(true);
     try {
-      const response = await api.post('/api/users/2fa/toggle', {}, token);
+      const response = await api.post("/api/users/2fa/toggle", {}, token);
 
       if (response.success) {
         // If enabling 2FA, show OTP input
@@ -66,7 +73,7 @@ export default function AccountSettings() {
           setShowOTPInput(true);
           setSendingOTP(true);
           // Initiate 2FA to send OTP
-          await api.post('/api/users/2fa/initiate', {}, token);
+          await api.post("/api/users/2fa/initiate", {}, token);
           setSendingOTP(false);
         } else {
           // If disabling, update state immediately
@@ -75,11 +82,11 @@ export default function AccountSettings() {
           );
         }
       } else {
-        setError(response.error || 'Failed to toggle 2FA');
+        setError(response.error || "Failed to toggle 2FA");
       }
     } catch (err) {
-      setError('Error toggling 2FA');
-      console.error('Error toggling 2FA:', err);
+      setError("Error toggling 2FA");
+      console.error("Error toggling 2FA:", err);
     } finally {
       setToggling(false);
     }
@@ -91,7 +98,7 @@ export default function AccountSettings() {
     setVerifying(true);
     try {
       const response = await api.post(
-        '/api/users/2fa/verify',
+        "/api/users/2fa/verify",
         {
           verificationCode: otpCode.trim(),
         },
@@ -103,13 +110,13 @@ export default function AccountSettings() {
           prev ? { ...prev, twoFactorEnabled: true } : null
         );
         setShowOTPInput(false);
-        setOtpCode('');
+        setOtpCode("");
       } else {
-        setError(response.error || 'Invalid OTP code');
+        setError(response.error || "Invalid OTP code");
       }
     } catch (err) {
-      setError('Error verifying OTP');
-      console.error('Error verifying OTP:', err);
+      setError("Error verifying OTP");
+      console.error("Error verifying OTP:", err);
     } finally {
       setVerifying(false);
     }
@@ -120,15 +127,15 @@ export default function AccountSettings() {
 
     setSendingOTP(true);
     try {
-      const response = await api.post('/api/users/2fa/initiate', {}, token);
+      const response = await api.post("/api/users/2fa/initiate", {}, token);
       if (response.success) {
         setError(null);
       } else {
-        setError('Failed to resend OTP');
+        setError("Failed to resend OTP");
       }
     } catch (err) {
-      setError('Error resending OTP');
-      console.error('Error resending OTP:', err);
+      setError("Error resending OTP");
+      console.error("Error resending OTP:", err);
     } finally {
       setSendingOTP(false);
     }
@@ -138,10 +145,7 @@ export default function AccountSettings() {
     return (
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center justify-center py-8">
-          <Loader2
-            className="animate-spin text-[#037F44]"
-            size={24}
-          />
+          <Loader2 className="animate-spin text-[#037F44]" size={24} />
           <span className="ml-2 text-gray-600">
             Loading account settings...
           </span>
@@ -163,10 +167,7 @@ export default function AccountSettings() {
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex items-center gap-3 mb-6">
-        <Shield
-          className="text-[#037F44]"
-          size={24}
-        />
+        <Shield className="text-[#037F44]" size={24} />
         <h2 className="text-xl font-semibold text-gray-800">
           Account Security
         </h2>
@@ -178,15 +179,9 @@ export default function AccountSettings() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               {user2FA.twoFactorEnabled ? (
-                <ShieldCheck
-                  className="text-green-600"
-                  size={24}
-                />
+                <ShieldCheck className="text-green-600" size={24} />
               ) : (
-                <Shield
-                  className="text-gray-400"
-                  size={24}
-                />
+                <Shield className="text-gray-400" size={24} />
               )}
               <div>
                 <h3 className="font-medium text-gray-800">
@@ -213,8 +208,8 @@ export default function AccountSettings() {
           <div
             className={`flex items-center gap-2 p-3 rounded-md ${
               user2FA.twoFactorEnabled
-                ? 'bg-green-50 text-green-700'
-                : 'bg-gray-50 text-gray-600'
+                ? "bg-green-50 text-green-700"
+                : "bg-gray-50 text-gray-600"
             }`}
           >
             {user2FA.twoFactorEnabled ? (
@@ -235,10 +230,7 @@ export default function AccountSettings() {
           {/* Loading state */}
           {toggling && (
             <div className="flex items-center gap-2 mt-4 text-[#037F44]">
-              <Loader2
-                className="animate-spin"
-                size={16}
-              />
+              <Loader2 className="animate-spin" size={16} />
               <span className="text-sm">Updating 2FA settings...</span>
             </div>
           )}
@@ -248,10 +240,7 @@ export default function AccountSettings() {
         {showOTPInput && (
           <div className="border border-gray-200 rounded-lg p-6 bg-blue-50">
             <div className="flex items-center gap-3 mb-4">
-              <Mail
-                className="text-blue-600"
-                size={20}
-              />
+              <Mail className="text-blue-600" size={20} />
               <h3 className="font-medium text-gray-800">Verify Your Email</h3>
             </div>
 
@@ -273,7 +262,7 @@ export default function AccountSettings() {
                   placeholder="Enter 6-digit code"
                   value={otpCode}
                   onChange={(e) =>
-                    setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))
+                    setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#037F44] focus:border-transparent"
                   maxLength={6}
@@ -287,12 +276,9 @@ export default function AccountSettings() {
                   className="flex items-center gap-2 bg-[#037F44] text-white px-4 py-2 rounded-md hover:bg-[#025c32] transition disabled:opacity-50"
                 >
                   {verifying ? (
-                    <Loader2
-                      className="animate-spin"
-                      size={16}
-                    />
+                    <Loader2 className="animate-spin" size={16} />
                   ) : (
-                    'Verify & Enable 2FA'
+                    "Verify & Enable 2FA"
                   )}
                 </button>
 
@@ -302,19 +288,16 @@ export default function AccountSettings() {
                   className="flex items-center gap-2 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition disabled:opacity-50"
                 >
                   {sendingOTP ? (
-                    <Loader2
-                      className="animate-spin"
-                      size={16}
-                    />
+                    <Loader2 className="animate-spin" size={16} />
                   ) : (
-                    'Resend Code'
+                    "Resend Code"
                   )}
                 </button>
 
                 <button
                   onClick={() => {
                     setShowOTPInput(false);
-                    setOtpCode('');
+                    setOtpCode("");
                     setError(null);
                   }}
                   className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition"
