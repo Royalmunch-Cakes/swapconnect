@@ -49,6 +49,8 @@ const fetchRecentlyUploaded = async (token?: string): Promise<Product[]> => {
   try {
     const response = await api.get<{ data: any[] }>(
       "/api/products/top?limit=6",
+    const response: any = await api.get<{ data: any[] }>(
+      '/api/products/top?limit=6',
       token
     );
     if (response.success && response.data) {
@@ -98,6 +100,9 @@ const MobilePhonesPage: React.FC = () => {
   });
 
   useEffect(() => {
+    if (!token) {
+      return;
+    }
     const loadProducts = async () => {
       const products = await fetchRecentlyUploaded(token);
       setRecentlyUploaded(products);
