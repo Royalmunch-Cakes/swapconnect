@@ -3,6 +3,7 @@
 import type React from 'react';
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { FaExchangeAlt, FaShoppingCart, FaHeart, FaStar } from 'react-icons/fa';
 
 interface Product {
@@ -101,7 +102,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Product image */}
         <div className="relative w-full aspect-square bg-gray-50 flex items-center justify-center overflow-hidden">
-          <img
+          <Image
             src={
               product.imageUrl ||
               '/placeholder.svg?height=200&width=200&query=product'
