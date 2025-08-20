@@ -17,7 +17,7 @@ import { api } from "@/lib/api";
 
 // OTP Components
 const OTPInput = dynamic(
-  () => import("otp-input-react").then((mod) => mod.OTPInput),
+  () => import('otp-input-react').then((mod) => mod.OTPInput || mod.default),
   { ssr: false }
 );
 const ResendOTP = dynamic(
@@ -59,12 +59,8 @@ type AuthUser = {
 
 type AuthResponse = {
   message: string;
-  success?: boolean;
-  status?: number;
-  data?: {
-    token: string;
-    user: AuthUser;
-  };
+  token: string;
+  user: AuthUser;
 };
 
 const Login: React.FC = () => {
@@ -87,8 +83,8 @@ const Login: React.FC = () => {
     const user = useUserStore.getState().user;
 
     if (token && user) {
-      toast("You&apos;re already logged in!", { icon: "🔒" });
-      router.push("/dashboard");
+      toast("You're already logged in!", { icon: '🔒' });
+      router.push('/dashboard');
     }
   }, [router]);
 
@@ -198,7 +194,7 @@ const Login: React.FC = () => {
 
     try {
       const res = await api.post<AuthResponse, LoginFormInputs>(
-        "/api/auth/login",
+        '/api/auth/login',
         formData
       );
 
@@ -238,7 +234,7 @@ const Login: React.FC = () => {
         const { user, token } = res.data!;
         loginUser({ ...user }, token); // Store all user fields and token
         localStorage.setItem("authToken", token);
-        localStorage.setItem("userId", user.id);
+        localStorage.setItem("userId", JSON.stringify(user.id));
         localStorage.removeItem("tempToken");
 
         toast.success("Login successful!");
@@ -246,13 +242,13 @@ const Login: React.FC = () => {
         // Determine redirect URL based on environment
         const hostname = window.location.hostname;
         console.log(hostname);
-        const redirectAfterLogin =
-          hostname === "localhost" || hostname === "127.0.0.1"
-            ? "http://localhost:3000"
-            : "/dashboard";
+        // const redirectAfterLogin =
+        //   hostname === 'localhost' || hostname === '127.0.0.1'
+        //     ? 'http://localhost:3000'
+        //     : '/dashboard';
 
-        // localStorage.removeItem("redirectAfterLogin");
-        router.push("/dashboard?token=" + token);
+        localStorage.removeItem('redirectAfterLogin');
+        router.push('/dashboard?token=' + token);
       } else {
         toast.error(res.message || "Login failed. Please try again.");
       }
@@ -356,8 +352,11 @@ const Login: React.FC = () => {
     toast.loading("Verifying 2FA code...", { id: "verify-2fa" });
 
     try {
-      const res = await api.post<AuthResponse, { verificationCode: string }>(
-        "/api/users/2fa/verify",
+      const res: any = await api.post<
+        AuthResponse,
+        { verificationCode: string }
+      >(
+        '/api/users/2fa/verify',
         {
           verificationCode: twoFactorOtp.toString(),
         },
@@ -499,8 +498,11 @@ const Login: React.FC = () => {
         </div>
 
         <p className="mt-4 text-xs text-center text-gray-600">
-          Don't have an account?
-          <Link href="/auth/signup" className="text-blue-600 hover:underline">
+          Don&apos;t have an account?{' '}
+          <Link
+            href="/auth/signup"
+            className="text-blue-600 hover:underline"
+          >
             Sign up
           </Link>
         </p>

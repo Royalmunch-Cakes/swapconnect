@@ -227,6 +227,8 @@ const FundWalletPage = () => {
               <p className="text-xs text-blue-600">
                 Your payment is processed securely through Paystack. You&apos;ll
                 be redirected to complete the payment and then returned to your
+                Your payment is processed securely through Paystack. You&apos;ll
+                be redirected to complete the payment and then returned to your
                 wallet.
               </p>
             </div>
