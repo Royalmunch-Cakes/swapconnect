@@ -17,8 +17,8 @@ function Page() {
     price: "",
     displayType: "",
     displaySize: "",
-    image: "",
     stock: "",
+    file: "",
   });
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -36,14 +36,46 @@ function Page() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    // --- Basic validation ---
+    if (!form.name.trim()) {
+      alert("Product name is required");
+      setLoading(false);
+      return;
+    }
+    if (Number(form.price) <= 0) {
+      alert("Price must be a positive number");
+      setLoading(false);
+      return;
+    }
+    if (Number(form.stock) < 0 || !Number.isInteger(Number(form.stock))) {
+      alert("Stock must be a non-negative integer");
+      setLoading(false);
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
       const formData = new FormData();
-      Object.entries(form).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
+
+      // Ensure correct types for price and stock
+      formData.append("name", form.name.trim());
+      formData.append("categoryId", form.categoryId);
+      formData.append("description", form.description);
+      formData.append("paymentType", form.paymentType);
+      formData.append("brand", form.brand);
+      formData.append("rom", form.rom);
+      formData.append("ram", form.ram);
+      formData.append("price", String(Number(form.price)));
+      formData.append("displayType", form.displayType);
+      formData.append("displaySize", form.displaySize);
+      formData.append("stock", String(Number(form.stock)));
+
       if (imageFile) {
-        formData.append("image", imageFile); // `image` should match your backend field name
+        formData.append("file", imageFile); // MUST be a File object, not Image()
+      }
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ": " + pair[1]);
       }
 
       const res = await fetch(`${API_URL}/api/products`, {
@@ -55,8 +87,10 @@ function Page() {
       });
 
       const data = await res.json();
+
+      console.log(data);
       if (res.ok) {
-        setShowSuccess(true); // Show success popup
+        setShowSuccess(true);
         setForm({
           name: "",
           categoryId: "",
@@ -68,8 +102,8 @@ function Page() {
           price: "",
           displayType: "",
           displaySize: "",
-          image: "",
           stock: "",
+          file: "",
         });
       } else {
         alert(data.message || "Failed to add product.");
@@ -267,22 +301,33 @@ function Page() {
                 step="0.01"
               />
             </div>
-            <div>
-              <label className="block mb-1 font-medium text-[#353535]">
-                Product Image
+            <div className="mb-3">
+              <label
+                htmlFor="deviceImage"
+                className="block text-gray-700 text-sm font-medium mb-1"
+              >
+                Product Image{" "}
               </label>
               <input
                 type="file"
-                value={form.image}
-                accept="image/*"
+                // id="deviceImage"
+                name="file"
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
                     setImageFile(e.target.files[0]);
                   }
                 }}
-                required
-                className="w-full border border-[#E5E7EB] rounded-md px-4 py-2 bg-white text-[#212121] text-[16px] focus:outline-none focus:ring-2 focus:ring-[#037F44]"
+                accept=".jpg,.jpeg,.png,.pdf"
+                className="block w-full text-sm text-gray-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-md file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-green-50 file:text-green-700
+                  hover:file:bg-green-100"
               />
+              <p className="mt-1 text-sm text-gray-500">
+                Supports: JPG, PNG, PDF (Max 5MB)
+              </p>
             </div>
 
             <button

@@ -17,7 +17,7 @@ import { api } from "@/lib/api";
 
 // OTP Components
 const OTPInput = dynamic(
-  () => import("otp-input-react").then((mod) => mod.OTPInput || mod.default),
+  () => import("otp-input-react").then((mod) => mod.OTPInput),
   { ssr: false }
 );
 const ResendOTP = dynamic(
@@ -31,7 +31,10 @@ const loginSchema = yup.object({
   password: yup.string().required("Password is required"),
 });
 
-type LoginFormInputs = yup.InferType<typeof loginSchema>;
+type LoginFormInputs = {
+  email: string;
+  password: string;
+};
 
 type AuthUser = {
   id: number;
@@ -56,10 +59,8 @@ type AuthUser = {
 
 type AuthResponse = {
   message: string;
-  data?: {
-    token: string;
-    user: AuthUser;
-  };
+  token: string;
+  user: AuthUser;
 };
 
 const Login: React.FC = () => {
@@ -192,7 +193,7 @@ const Login: React.FC = () => {
     toast.loading("Signing in...", { id: "login" });
 
     try {
-      const res: any = await api.post<AuthResponse, LoginFormInputs>(
+      const res = await api.post<AuthResponse, LoginFormInputs>(
         "/api/auth/login",
         formData
       );
@@ -225,12 +226,15 @@ const Login: React.FC = () => {
         setIsProcessing(false);
         return;
       }
-
+      if (res.success) {
+        if (!res.data?.token) return;
+        if (!res.data?.user) return;
+      }
       if (res.success && res.data?.token && res.data?.user?.verified) {
-        const { user, token } = res.data;
+        const { user, token } = res.data!;
         loginUser({ ...user }, token); // Store all user fields and token
         localStorage.setItem("authToken", token);
-        localStorage.setItem("userId", user.id);
+        localStorage.setItem("userId", JSON.stringify(user.id));
         localStorage.removeItem("tempToken");
 
         toast.success("Login successful!");
@@ -238,10 +242,10 @@ const Login: React.FC = () => {
         // Determine redirect URL based on environment
         const hostname = window.location.hostname;
         console.log(hostname);
-        const redirectAfterLogin =
-          hostname === "localhost" || hostname === "127.0.0.1"
-            ? "http://localhost:3000"
-            : "/dashboard";
+        // const redirectAfterLogin =
+        //   hostname === 'localhost' || hostname === '127.0.0.1'
+        //     ? 'http://localhost:3000'
+        //     : '/dashboard';
 
         localStorage.removeItem("redirectAfterLogin");
         router.push("/dashboard?token=" + token);
@@ -494,7 +498,7 @@ const Login: React.FC = () => {
         </div>
 
         <p className="mt-4 text-xs text-center text-gray-600">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/auth/signup" className="text-blue-600 hover:underline">
             Sign up
           </Link>

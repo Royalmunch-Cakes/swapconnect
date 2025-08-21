@@ -3,7 +3,7 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useUserStore } from "@/stores/AuthStore";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import Link from "next/link";
 import Image from "next/image";
@@ -151,8 +151,8 @@ const computerFields: TradeInField[] = [
 ];
 
 const ComputersPage: React.FC = () => {
-  const router = useRouter();
-  const { user, token, isAuthenticated } = useUserStore();
+  // const router = useRouter();
+  const { token } = useUserStore();
 
   const [recentlyUploaded, setRecentlyUploaded] = useState<Product[]>([]);
   const [startIndex, setStartIndex] = useState(0);
@@ -178,6 +178,7 @@ const ComputersPage: React.FC = () => {
 
   // Load recently uploaded products
   useEffect(() => {
+    if (!token) return;
     fetchRecentlyUploaded(token).then(setRecentlyUploaded);
   }, [token]);
 
@@ -229,7 +230,14 @@ const ComputersPage: React.FC = () => {
           },
         };
 
-        const response = await api.post("/api/bid/calculator", payload, token);
+        if (!token) {
+          return;
+        }
+        const response: any = await api.post(
+          "/api/bid/calculator",
+          payload,
+          token
+        );
 
         if (response.success) {
           setEstimatedValue(response.estimatedValue || 0);

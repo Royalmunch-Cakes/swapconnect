@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import type React from 'react';
-import { useState } from 'react';
-import Link from 'next/link';
-import { FaExchangeAlt, FaShoppingCart, FaHeart, FaStar } from 'react-icons/fa';
+import type React from "react";
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { FaExchangeAlt, FaShoppingCart, FaHeart, FaStar } from "react-icons/fa";
 
 interface Product {
   id: string;
@@ -42,9 +43,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [isHovered, setIsHovered] = useState(false);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
       minimumFractionDigits: 0,
     }).format(price);
   };
@@ -54,7 +55,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <FaStar
         key={i}
         className={`w-3 h-3 ${
-          i < rating ? 'text-yellow-400' : 'text-gray-300'
+          i < rating ? "text-yellow-400" : "text-gray-300"
         }`}
       />
     ));
@@ -65,8 +66,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
       onClick={onClick}
       className={`p-2 rounded-full transition-colors ${
         active
-          ? 'bg-green-600 text-white'
-          : 'bg-white text-gray-600 hover:bg-green-600 hover:text-white'
+          ? "bg-green-600 text-white"
+          : "bg-white text-gray-600 hover:bg-green-600 hover:text-white"
       }`}
       title={label}
     >
@@ -75,15 +76,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
   );
 
   return (
-    <Link
-      href={`/shop/product/${product.id}`}
-      className="block"
-    >
+    <Link href={`/shop/product/${product.id}`} className="block">
       <div
         className="relative bg-white rounded-xl shadow-md overflow-hidden transition-transform duration-300 hover:scale-105 group"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        style={{ minHeight: '340px' }}
+        style={{ minHeight: "340px" }}
       >
         {/* Product badges */}
         <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
@@ -101,21 +99,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Product image */}
         <div className="relative w-full aspect-square bg-gray-50 flex items-center justify-center overflow-hidden">
-          <img
+          <Image
+            width={200}
+            height={200}
             src={
               product.imageUrl ||
-              '/placeholder.svg?height=200&width=200&query=product'
+              "/placeholder.svg?height=200&width=200&query=product"
             }
-            alt={product.name || 'Product image'}
+            alt={product.name || "Product image"}
             className={`object-contain w-full h-3/5 transition-transform duration-500 ${
-              isHovered ? 'scale-110' : 'scale-100'
+              isHovered ? "scale-110" : "scale-100"
             }`}
           />
 
           {/* Action buttons */}
           <div
             className={`absolute inset-0 flex items-center justify-center gap-3 bg-black bg-opacity-10 transition-opacity duration-300 ${
-              isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           >
             <IconButton

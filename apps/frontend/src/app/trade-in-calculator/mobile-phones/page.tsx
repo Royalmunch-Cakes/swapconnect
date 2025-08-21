@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import type React from 'react';
-import { useState, useEffect } from 'react';
-import { useUserStore } from '@/stores/AuthStore';
-import { useRouter } from 'next/navigation';
-import toast, { Toaster } from 'react-hot-toast';
-import Link from 'next/link';
-import Image from 'next/image';
-import { FaChevronRight } from 'react-icons/fa';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type React from "react";
+import { useState, useEffect } from "react";
+import { useUserStore } from "@/stores/AuthStore";
+// import { useRouter } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
+import Link from "next/link";
+import Image from "next/image";
+import { FaChevronRight } from "react-icons/fa";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faShoppingCart,
   faArrowRight,
   faArrowLeft,
-} from '@fortawesome/free-solid-svg-icons';
-import { api } from '@/lib/api';
+} from "@fortawesome/free-solid-svg-icons";
+import { api } from "@/lib/api";
 
 interface Product {
   id: string;
@@ -22,7 +22,7 @@ interface Product {
   image: string;
   price: number;
   description: string;
-  availability: 'in stock' | 'out of stock';
+  availability: "in stock" | "out of stock";
   stock: number;
   isTopSale: boolean;
   tag: string;
@@ -47,33 +47,33 @@ interface MobileFormData {
 // Function to fetch recently uploaded products from the backend
 const fetchRecentlyUploaded = async (token?: string): Promise<Product[]> => {
   try {
-    const response = await api.get<{ data: any[] }>(
-      '/api/products/top?limit=6',
+    const response: any = await api.get<{ data: any[] }>(
+      "/api/products/top?limit=6",
       token
     );
     if (response.success && response.data) {
       return response.data.map((product: any) => ({
         id: product.id.toString(),
         name: product.name,
-        image: product.imageUrl || '/placeholder.svg?height=200&width=200',
+        image: product.imageUrl || "/placeholder.svg?height=200&width=200",
         price: product.price,
-        description: product.description || '',
-        availability: product.stock > 0 ? 'in stock' : 'out of stock',
+        description: product.description || "",
+        availability: product.stock > 0 ? "in stock" : "out of stock",
         stock: product.stock,
         isTopSale: true,
-        tag: product.Category?.name || 'Mobile Phones',
+        tag: product.Category?.name || "Mobile Phones",
       }));
     }
     return [];
   } catch (error) {
-    console.error('Failed to fetch recently uploaded products:', error);
+    console.error("Failed to fetch recently uploaded products:", error);
     return [];
   }
 };
 
 const MobilePhonesPage: React.FC = () => {
-  const router = useRouter();
-  const { user, token, isAuthenticated } = useUserStore();
+  // const router = useRouter();
+  const { token } = useUserStore();
 
   const [recentlyUploaded, setRecentlyUploaded] = useState<Product[]>([]);
   const [startIndex, setStartIndex] = useState(0);
@@ -82,22 +82,25 @@ const MobilePhonesPage: React.FC = () => {
   const [calculationBreakdown, setCalculationBreakdown] = useState<any>(null);
   const [hasCalculated, setHasCalculated] = useState(false);
   const [formData, setFormData] = useState<MobileFormData>({
-    brand: '',
-    model: '',
-    storage: '',
-    ram: '',
-    batteryCapacity: '',
-    batteryHours: '',
-    phoneAge: '',
-    deviceImage: '',
-    autoOnOff: '',
-    bodyCondition: '',
-    screenCondition: '',
-    repairVisits: '',
-    biometricFunction: '',
+    brand: "",
+    model: "",
+    storage: "",
+    ram: "",
+    batteryCapacity: "",
+    batteryHours: "",
+    phoneAge: "",
+    deviceImage: "",
+    autoOnOff: "",
+    bodyCondition: "",
+    screenCondition: "",
+    repairVisits: "",
+    biometricFunction: "",
   });
 
   useEffect(() => {
+    if (!token) {
+      return;
+    }
     const loadProducts = async () => {
       const products = await fetchRecentlyUploaded(token);
       setRecentlyUploaded(products);
@@ -107,13 +110,13 @@ const MobilePhonesPage: React.FC = () => {
 
   // Restore saved form data if redirected from login
   useEffect(() => {
-    const saved = sessionStorage.getItem('mobileTradeInFormData');
+    const saved = sessionStorage.getItem("mobileTradeInFormData");
     if (saved) {
       try {
         setFormData(JSON.parse(saved));
-        sessionStorage.removeItem('mobileTradeInFormData');
+        sessionStorage.removeItem("mobileTradeInFormData");
       } catch (error) {
-        console.error('Failed to parse saved form data:', error);
+        console.error("Failed to parse saved form data:", error);
       }
     }
   }, []);
@@ -143,7 +146,7 @@ const MobilePhonesPage: React.FC = () => {
       !formData.phoneAge
     ) {
       toast.error(
-        'Please fill in all required fields (Brand, Model, Storage, RAM, Phone Age)'
+        "Please fill in all required fields (Brand, Model, Storage, RAM, Phone Age)"
       );
       return;
     }
@@ -152,7 +155,7 @@ const MobilePhonesPage: React.FC = () => {
 
     try {
       const payload = {
-        deviceType: 'mobile',
+        deviceType: "mobile",
         deviceDetails: {
           brand: formData.brand,
           model: formData.model,
@@ -171,11 +174,15 @@ const MobilePhonesPage: React.FC = () => {
         },
       };
 
-      if(!token) {
+      if (!token) {
         return;
       }
 
-      const response = await api.post('/api/bid/calculator', payload, token);
+      const response: any = await api.post(
+        "/api/bid/calculator",
+        payload,
+        token
+      );
 
       if (response.success) {
         console.log(response);
@@ -198,17 +205,17 @@ const MobilePhonesPage: React.FC = () => {
           );
         } else {
           toast.error(
-            'Unable to calculate value. Please check your device details.'
+            "Unable to calculate value. Please check your device details."
           );
         }
       } else {
-        console.error('Calculation failed:', response.error);
-        toast.error('Failed to calculate trade-in value. Please try again.');
+        console.error("Calculation failed:", response.error);
+        toast.error("Failed to calculate trade-in value. Please try again.");
       }
     } catch (error) {
-      console.error('Error calculating value:', error);
+      console.error("Error calculating value:", error);
       toast.error(
-        'An error occurred while calculating the value. Please try again.'
+        "An error occurred while calculating the value. Please try again."
       );
     } finally {
       setIsCalculating(false);
@@ -217,7 +224,7 @@ const MobilePhonesPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('hi');
+    alert("hi");
     await calculateValue();
   };
 
@@ -227,14 +234,14 @@ const MobilePhonesPage: React.FC = () => {
     const { name, value, type, files } = e.target as HTMLInputElement;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'file' ? files?.[0] || '' : value,
+      [name]: type === "file" ? files?.[0] || "" : value,
     }));
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
       minimumFractionDigits: 0,
     }).format(price);
   };
@@ -257,9 +264,9 @@ const MobilePhonesPage: React.FC = () => {
   const isNextDisabled = endIndex >= recentlyUploaded.length;
 
   const getEstimateDisplayText = () => {
-    if (isCalculating) return 'Calculating...';
+    if (isCalculating) return "Calculating...";
     if (hasCalculated && estimatedValue > 0) return formatPrice(estimatedValue);
-    if (hasCalculated && estimatedValue === 0) return 'Unable to estimate';
+    if (hasCalculated && estimatedValue === 0) return "Unable to estimate";
     return "Click 'Get Final Estimate' to calculate";
   };
 
@@ -276,7 +283,7 @@ const MobilePhonesPage: React.FC = () => {
           <div className="w-full md:w-8/12 lg:w-3/4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
               {/* Brand */}
-              <div className="relative mb-3">
+              <div className="relative  mb-3">
                 <label
                   htmlFor="brand"
                   className="block text-gray-700 text-sm font-medium mb-1"
@@ -302,7 +309,7 @@ const MobilePhonesPage: React.FC = () => {
                   <option value="Tecno">Tecno</option>
                   <option value="Other">Other</option>
                 </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+                <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
               </div>
 
               {/* Model */}
@@ -349,7 +356,7 @@ const MobilePhonesPage: React.FC = () => {
                   <option value="512GB">512GB</option>
                   <option value="1TB">1TB</option>
                 </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+                <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
               </div>
 
               {/* RAM Size */}
@@ -377,7 +384,7 @@ const MobilePhonesPage: React.FC = () => {
                   <option value="12GB">12GB</option>
                   <option value="16GB">16GB</option>
                 </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+                <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
               </div>
 
               {/* Battery Capacity */}
@@ -402,7 +409,7 @@ const MobilePhonesPage: React.FC = () => {
                   <option value="6000MAH">6000mAh</option>
                   <option value="Unknown">Unknown</option>
                 </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+                <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
               </div>
 
               {/* Battery Lasting Hours */}
@@ -426,7 +433,7 @@ const MobilePhonesPage: React.FC = () => {
                   <option value="8-12 HRS">8-12 hours</option>
                   <option value="more than 12 HRS">More than 12 hours</option>
                 </select>
-                <FaChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
+                <FaChevronRight className="absolute right-3 top-2/3 -translate-y-1/2 rotate-90 text-gray-400 pointer-events-none" />
               </div>
 
               {/* Phone Age */}
@@ -497,7 +504,7 @@ const MobilePhonesPage: React.FC = () => {
                   src="https://res.cloudinary.com/ds83mhjcm/image/upload/v1720182137/SwapConnect/swap/trade-in-calculator_value_kjsuxr.png"
                   alt="Trade-in value illustration"
                   fill
-                  style={{ objectFit: 'contain' }}
+                  style={{ objectFit: "contain" }}
                   className="rounded-md"
                 />
               </div>
@@ -514,8 +521,8 @@ const MobilePhonesPage: React.FC = () => {
                   <span
                     className={`text-lg font-bold ${
                       hasCalculated && estimatedValue > 0
-                        ? 'text-green-600'
-                        : 'text-gray-600'
+                        ? "text-green-600"
+                        : "text-gray-600"
                     }`}
                   >
                     {getEstimateDisplayText()}
@@ -530,12 +537,12 @@ const MobilePhonesPage: React.FC = () => {
                   </h5>
                   <div className="text-xs text-blue-700 space-y-1">
                     <div>
-                      Base Value:{' '}
+                      Base Value:{" "}
                       {formatPrice(calculationBreakdown.baseValue || 0)}
                     </div>
                     {calculationBreakdown.conditionMultiplier && (
                       <div>
-                        Condition Factor:{' '}
+                        Condition Factor:{" "}
                         {(
                           calculationBreakdown.conditionMultiplier * 100
                         ).toFixed(0)}
@@ -543,7 +550,7 @@ const MobilePhonesPage: React.FC = () => {
                       </div>
                     )}
                     <div className="font-semibold border-t pt-1">
-                      Final Value:{' '}
+                      Final Value:{" "}
                       {formatPrice(
                         calculationBreakdown.finalValue || estimatedValue
                       )}
@@ -696,7 +703,7 @@ const MobilePhonesPage: React.FC = () => {
               <p className="text-sm text-gray-700">
                 <strong className="font-bold text-yellow-800">
                   Important Notice:
-                </strong>{' '}
+                </strong>{" "}
                 This trade-in estimate is preliminary and subject to change
                 after physical evaluation by our technicians. Final value
                 depends on actual device condition, functionality, and market
@@ -754,7 +761,7 @@ const MobilePhonesPage: React.FC = () => {
               disabled={isCalculating}
               className="bg-green-600 text-white px-6 py-3 my-3 rounded-md font-semibold hover:bg-green-700 transition duration-200 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isCalculating ? 'Calculating...' : 'Get Final Estimate'}
+              {isCalculating ? "Calculating..." : "Get Final Estimate"}
             </button>
           </div>
 
@@ -770,15 +777,15 @@ const MobilePhonesPage: React.FC = () => {
                 className={`flex items-center justify-center w-10 h-10 rounded-lg text-lg transition-colors duration-200
                 ${
                   isPrevDisabled
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : 'bg-yellow-600 text-white hover:bg-yellow-700'
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-yellow-600 text-white hover:bg-yellow-700"
                 }`}
                 aria-label="Previous products"
               >
                 <FontAwesomeIcon icon={faArrowLeft} />
               </button>
               <span className="text-sm text-gray-600">
-                {Math.floor(startIndex / itemsPerPage) + 1} of{' '}
+                {Math.floor(startIndex / itemsPerPage) + 1} of{" "}
                 {Math.ceil(recentlyUploaded.length / itemsPerPage)}
               </span>
               <button
@@ -787,8 +794,8 @@ const MobilePhonesPage: React.FC = () => {
                 className={`flex items-center justify-center w-10 h-10 rounded-lg text-lg transition-colors duration-200
                 ${
                   isNextDisabled
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : 'bg-yellow-600 text-white hover:bg-yellow-700'
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-yellow-600 text-white hover:bg-yellow-700"
                 }`}
                 aria-label="Next products"
               >
@@ -804,10 +811,10 @@ const MobilePhonesPage: React.FC = () => {
                 >
                   <div className="relative w-full h-32 mb-2">
                     <Image
-                      src={product.image || '/placeholder.svg'}
+                      src={product.image || "/placeholder.svg"}
                       alt={product.name}
                       fill
-                      style={{ objectFit: 'contain' }}
+                      style={{ objectFit: "contain" }}
                       className="rounded-t-lg"
                     />
                   </div>
@@ -819,16 +826,16 @@ const MobilePhonesPage: React.FC = () => {
                       {product.description}
                     </p>
                     <p className="text-xs text-gray-700 mb-2">
-                      Price:{' '}
+                      Price:{" "}
                       <strong className="font-bold">
                         {formatPrice(product.price)}
                       </strong>
                     </p>
                     <p
                       className={`text-xs font-medium ${
-                        product.availability === 'in stock'
-                          ? 'text-green-600'
-                          : 'text-red-600'
+                        product.availability === "in stock"
+                          ? "text-green-600"
+                          : "text-red-600"
                       }`}
                     >
                       {product.availability}
@@ -840,7 +847,7 @@ const MobilePhonesPage: React.FC = () => {
                       >
                         View More
                       </Link>
-                      {product.availability === 'out of stock' ? (
+                      {product.availability === "out of stock" ? (
                         <FontAwesomeIcon
                           icon={faShoppingCart}
                           className="text-gray-400 opacity-50 text-base"
