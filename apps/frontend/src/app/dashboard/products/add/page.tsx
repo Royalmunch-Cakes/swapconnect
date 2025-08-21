@@ -39,49 +39,51 @@ function Page() {
 
     // --- Basic validation ---
     if (!form.name.trim()) {
-      alert("Product name is required");
+      alert('Product name is required');
       setLoading(false);
       return;
     }
     if (Number(form.price) <= 0) {
-      alert("Price must be a positive number");
+      alert('Price must be a positive number');
       setLoading(false);
       return;
     }
     if (Number(form.stock) < 0 || !Number.isInteger(Number(form.stock))) {
-      alert("Stock must be a non-negative integer");
+      alert('Stock must be a non-negative integer');
+      setLoading(false);
+      return;
+    }
+    if (!imageFile) {
+      alert('Product image is required');
       setLoading(false);
       return;
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
       const formData = new FormData();
 
-      // Ensure correct types for price and stock
-      formData.append("name", form.name.trim());
-      formData.append("categoryId", form.categoryId);
-      formData.append("description", form.description);
-      formData.append("paymentType", form.paymentType);
-      formData.append("brand", form.brand);
-      formData.append("rom", form.rom);
-      formData.append("ram", form.ram);
-      formData.append("price", String(Number(form.price)));
-      formData.append("displayType", form.displayType);
-      formData.append("displaySize", form.displaySize);
-      formData.append("stock", String(Number(form.stock)));
+      // Append all form fields
+      formData.append('name', form.name.trim());
+      formData.append('categoryId', form.categoryId);
+      formData.append('description', form.description);
+      formData.append('paymentType', form.paymentType);
+      formData.append('brand', form.brand);
+      formData.append('rom', form.rom);
+      formData.append('ram', form.ram);
+      formData.append('price', String(Number(form.price)));
+      formData.append('displayType', form.displayType);
+      formData.append('displaySize', form.displaySize);
+      formData.append('stock', String(Number(form.stock)));
 
-      if (imageFile) {
-        formData.append("file", imageFile); // MUST be a File object, not Image()
-      }
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ": " + pair[1]);
-      }
+      // Append the image file with the correct field name
+      formData.append('image', imageFile); // Changed from "file" to "image"
 
       const res = await fetch(`${API_URL}/api/products`, {
-        method: "POST",
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
+          // Don't set Content-Type header for FormData - browser will set it automatically with boundary
         },
         body: formData,
       });
@@ -92,25 +94,25 @@ function Page() {
       if (res.ok) {
         setShowSuccess(true);
         setForm({
-          name: "",
-          categoryId: "",
-          description: "",
-          paymentType: "",
-          brand: "",
-          rom: "",
-          ram: "",
-          price: "",
-          displayType: "",
-          displaySize: "",
-          stock: "",
-          file: "",
+          name: '',
+          categoryId: '',
+          description: '',
+          paymentType: '',
+          brand: '',
+          rom: '',
+          ram: '',
+          price: '',
+          displayType: '',
+          displaySize: '',
+          stock: '',
+          file: '',
         });
       } else {
-        alert(data.message || "Failed to add product.");
+        alert(data.message || 'Failed to add product.');
       }
     } catch (error) {
       console.error(error);
-      alert("An error occurred. Please try again.");
+      alert('An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -311,7 +313,7 @@ function Page() {
               <input
                 type="file"
                 // id="deviceImage"
-                name="file"
+                name="image"
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
                     setImageFile(e.target.files[0]);

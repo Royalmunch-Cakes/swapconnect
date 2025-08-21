@@ -27,7 +27,7 @@ const useProductsDisplayUIStore = create<ProductsDisplayUIState>((set) => ({
   currentPage: 1,
   selectedSort: "Default Sorting",
   minPrice: 0,
-  maxPrice: 1000,
+  maxPrice: 100000000000000,
   showSortDropdown: false,
   setCurrentPage: (page) => set({ currentPage: page }),
   setSelectedSort: (sort) => set({ selectedSort: sort }),
@@ -290,7 +290,7 @@ const ProductsDisplay = () => {
               id="minPrice"
               type="range"
               min={0}
-              max={1000}
+              max={100000000000000}
               value={minPrice}
               onChange={(e) => handlePriceChange(e, "min")}
               className="w-full accent-green-600"
