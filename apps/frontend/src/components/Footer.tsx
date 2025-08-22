@@ -22,12 +22,12 @@ const quickLinks = [
 ];
 
 const categories = [
-  { href: "/category/ios", label: "iOS" },
-  { href: "/category/bluetooth", label: "Bluetooths" },
-  { href: "/category/watches", label: "Watches" },
-  { href: "/category/accessories", label: "Accessories" },
-  { href: "/category/androids", label: "Androids" },
-  { href: "/category/laptops", label: "Laptops" },
+  { href: "/category/apple", label: "Apple" },
+  { href: "/category/speakers", label: "Speakers" },
+  { href: "/category/handband", label: "Handbands" },
+  { href: "/category/mouse", label: "Mouse" },
+  { href: "/category/mobile", label: "Mobile" },
+  { href: "/category/macbook", label: "MacBooks" },
 ];
 
 const Footer: React.FC = () => {
