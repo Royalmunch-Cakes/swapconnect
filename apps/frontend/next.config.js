@@ -41,6 +41,11 @@ const nextConfig = {
         hostname: 'www.vectorstock.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+        pathname: '/**'
+      }
     ],
   },
   typescript: {

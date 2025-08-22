@@ -76,7 +76,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   );
 
   return (
-    <Link href={`/shop/product/${product.id}`} className="block">
+    <Link href={`/product/${product.id}`} className="block">
       <div
         className="relative bg-white rounded-xl shadow-md overflow-hidden transition-transform duration-300 hover:scale-105 group"
         onMouseEnter={() => setIsHovered(true)}
