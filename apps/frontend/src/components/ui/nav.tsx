@@ -1,6 +1,6 @@
-'use client';
-import type React from 'react';
-import { useEffect, useState } from 'react';
+"use client";
+import type React from "react";
+import { useEffect, useState } from "react";
 import {
   Menu,
   LayoutDashboard,
@@ -10,46 +10,46 @@ import {
   Settings,
   HelpCircle,
   Gavel,
-} from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { API_URL } from '../../lib/config';
-import { useAuthToken } from '../../hooks/useAuthToken';
-import { useUserStore } from '@/stores/AuthStore';
-import NotificationBell from '@/components/ui/notification-bell';
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { API_URL } from "../../lib/config";
+import { useAuthToken } from "../../hooks/useAuthToken";
+import { useUserStore } from "@/stores/AuthStore";
+import NotificationBell from "@/components/ui/notification-bell";
 
 const menuItems = [
-  { label: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
-  { label: 'Products', url: '/dashboard/products', icon: Package },
-  { label: 'Orders', url: '/dashboard/orders', icon: BaggageClaim },
-  { label: 'Bids', url: '/dashboard/bid', icon: Gavel },
-  { label: 'Wallet', url: '/dashboard/wallet', icon: Wallet },
-  { label: 'Support', url: '/dashboard/support', icon: HelpCircle },
-  { label: 'Settings', url: '/dashboard/settings', icon: Settings },
+  { label: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { label: "Products", url: "/dashboard/products", icon: Package },
+  { label: "Orders", url: "/dashboard/orders", icon: BaggageClaim },
+  { label: "Bids", url: "/dashboard/bid", icon: Gavel },
+  { label: "Wallet", url: "/dashboard/wallet", icon: Wallet },
+  { label: "Support", url: "/dashboard/support", icon: HelpCircle },
+  { label: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
 
 interface NavProps {
   title: string;
 }
 
-const DEFAULT_USER_ICON = '/images/user-icon.webp';
+const DEFAULT_USER_ICON = "/images/user-icon.webp";
 
 const getValidAvatarUrl = (avatarUrl: string | null | undefined): string => {
   // Return default if no avatar or invalid avatar
-  if (!avatarUrl || typeof avatarUrl !== 'string' || avatarUrl.trim() === '') {
+  if (!avatarUrl || typeof avatarUrl !== "string" || avatarUrl.trim() === "") {
     return DEFAULT_USER_ICON;
   }
 
   // Check if it's a problematic external URL (vectorstock, etc.)
   if (
-    avatarUrl.includes('vectorstock.com') ||
-    avatarUrl.includes('placeholder')
+    avatarUrl.includes("vectorstock.com") ||
+    avatarUrl.includes("placeholder")
   ) {
     return DEFAULT_USER_ICON;
   }
 
   // If it's a relative path, ensure it starts with /
-  if (!avatarUrl.startsWith('http') && !avatarUrl.startsWith('/')) {
+  if (!avatarUrl.startsWith("http") && !avatarUrl.startsWith("/")) {
     return `/${avatarUrl}`;
   }
 
@@ -77,15 +77,15 @@ const Navbar: React.FC<NavProps> = ({ title }) => {
 
       try {
         const response = await fetch(`${API_URL}/api/users`, {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         });
         if (!response.ok) {
           if (response.status === 401) {
-            localStorage.removeItem('authToken');
+            localStorage.removeItem("authToken");
             logoutUser();
             const currentUrl = window.location.href;
             window.location.href = `http://localhost:3000/auth/login?redirect=${encodeURIComponent(
@@ -101,7 +101,7 @@ const Navbar: React.FC<NavProps> = ({ title }) => {
         const data = await response.json();
         // console.log("User data:", data);
 
-        if (data.data && typeof data.data === 'object') {
+        if (data.data && typeof data.data === "object") {
           const sanitizedAvatar = getValidAvatarUrl(data.data.avatar);
 
           loginUser(
@@ -111,7 +111,7 @@ const Navbar: React.FC<NavProps> = ({ title }) => {
               displayName: `${data.data.firstName} ${data.data.lastName}`,
               photoURL: sanitizedAvatar,
               avatar: sanitizedAvatar,
-              email: data.data.email || '',
+              email: data.data.email || "",
             },
             token
           );
@@ -129,14 +129,14 @@ const Navbar: React.FC<NavProps> = ({ title }) => {
 
     // Token change listener (cross-tab sync)
     const handleStorage = (event: StorageEvent) => {
-      if (event.key === 'authToken') {
+      if (event.key === "authToken") {
         fetchUser();
       }
     };
 
-    window.addEventListener('storage', handleStorage);
+    window.addEventListener("storage", handleStorage);
     return () => {
-      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener("storage", handleStorage);
     };
   }, [token, loginUser, logoutUser]);
 
@@ -148,23 +148,20 @@ const Navbar: React.FC<NavProps> = ({ title }) => {
       <div className="hidden md:flex items-center justify-between w-full">
         <h2 className="text-[24px] font-bold text-[#353535]">{title}</h2>
         <div className="flex items-center gap-[32px]">
-          <div
-            className="flex cursor-pointer"
-            aria-label="Notifications"
-          >
+          <div className="flex cursor-pointer" aria-label="Notifications">
             <NotificationBell />
           </div>
           <div className="h-8 w-px bg-gray-300" />
           <div className="flex items-center gap-[12px]">
             <span className="font-normal text-[#3E344F] text-[16px]">
               {userLoading
-                ? 'Loading...'
-                : typeof user?.name === 'string' && user?.name.trim() !== ''
+                ? "Loading..."
+                : typeof user?.name === "string" && user?.name.trim() !== ""
                 ? user.name
-                : 'Guest'}
+                : "Guest"}
             </span>
             <Image
-              src={displayAvatarUrl || '/placeholder.svg'}
+              src={displayAvatarUrl || "/placeholder.svg"}
               alt="Profile"
               width={40}
               height={40}
@@ -184,7 +181,7 @@ const Navbar: React.FC<NavProps> = ({ title }) => {
       <div className="flex md:hidden items-center justify-between w-full">
         <div className="flex items-center gap-1 md:gap-3">
           <Image
-            src={displayAvatarUrl || '/placeholder.svg'}
+            src={displayAvatarUrl || "/placeholder.svg"}
             alt="Profile"
             width={36}
             height={36}
@@ -198,17 +195,14 @@ const Navbar: React.FC<NavProps> = ({ title }) => {
           />
           <span className="font-normal text-[#353535] text-[16px]">
             {userLoading
-              ? 'Loading...'
-              : typeof user?.name === 'string' && user?.name.trim() !== ''
+              ? "Loading..."
+              : typeof user?.name === "string" && user?.name.trim() !== ""
               ? user.name
-              : 'Guest'}
+              : "Guest"}
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <div
-            className="flex cursor-pointer"
-            aria-label="Notifications"
-          >
+          <div className="flex cursor-pointer" aria-label="Notifications">
             <NotificationBell />
           </div>
           <button
@@ -216,10 +210,7 @@ const Navbar: React.FC<NavProps> = ({ title }) => {
             aria-label="Open menu"
             onClick={() => setMenuOpen(true)}
           >
-            <Menu
-              size={28}
-              color="#353535"
-            />
+            <Menu size={28} color="#353535" />
           </button>
         </div>
       </div>
@@ -253,17 +244,14 @@ const Navbar: React.FC<NavProps> = ({ title }) => {
             <button
               className="mt-8 w-full py-2 bg-[#F87171] text-white rounded font-semibold hover:bg-[#d32f2f] transition"
               onClick={() => {
-                localStorage.removeItem('token');
-                window.location.href = '/auth/login';
+                localStorage.removeItem("token");
+                window.location.href = "/auth/login";
               }}
             >
               Logout
             </button>
           </div>
-          <div
-            className="flex-1"
-            onClick={() => setMenuOpen(false)}
-          />
+          <div className="flex-1" onClick={() => setMenuOpen(false)} />
         </div>
       )}
     </nav>

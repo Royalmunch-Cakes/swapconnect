@@ -313,6 +313,7 @@ function Page() {
               <input
                 type="file"
                 // id="deviceImage"
+                // value={form.file}
                 name="image"
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {

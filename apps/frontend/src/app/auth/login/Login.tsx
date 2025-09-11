@@ -191,6 +191,7 @@ const Login: React.FC = () => {
   const onSubmit: SubmitHandler<LoginFormInputs> = async (formData) => {
     setIsProcessing(true);
     toast.loading("Signing in...", { id: "login" });
+    // console.log("Calling login API:", backendUrl + "/api/auth/login");
 
     try {
       const res = await api.post<AuthResponse, LoginFormInputs>(
