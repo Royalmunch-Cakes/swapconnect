@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter, usePathname } from 'next/navigation';
 
 const socialLinks = [
   { icon: "fab fa-twitter", href: "#" },
@@ -33,6 +34,17 @@ const categories = [
 const Footer: React.FC = () => {
   const getCurrentYear = () => new Date().getFullYear();
 
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleClick = () => {
+    if (pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      router.push('/');
+    }
+  };
+
   return (
     <footer className="bg-gray- mt-8 pt-8 flex-shrink-0">
       <div className="max-w-6xl mx-auto px-4">
@@ -45,6 +57,7 @@ const Footer: React.FC = () => {
               width={150}
               height={40}
               className="mb-4"
+              onClick={handleClick}
             />
             <p className="text-gray-600 text-sm mb-4">
               SwapConnect is your trusted platform for swapping, buying, and
