@@ -83,7 +83,6 @@ function Page() {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
-          // Don't set Content-Type header for FormData - browser will set it automatically with boundary
         },
         body: formData,
       });
