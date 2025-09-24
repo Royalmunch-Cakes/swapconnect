@@ -160,6 +160,7 @@ const ComputersPage: React.FC = () => {
   const [estimatedValue, setEstimatedValue] = useState<number>(0);
   const [isCalculating, setIsCalculating] = useState(false);
   const [calculationBreakdown, setCalculationBreakdown] = useState<any>(null);
+  const [hasCalculated, setHascCalculated] = useState(false);
   const [formData, setFormData] = useState<ComputerFormData>({
     brand: "",
     model: "",
@@ -198,12 +199,25 @@ const ComputersPage: React.FC = () => {
 
   // Calculate estimated value when form data changes
   useEffect(() => {
+    if (hasCalculated){
+      setHascCalculated(false);
+      setEstimatedValue(0);
+      setCalculationBreakdown(null);
+    }
+  }, [
+    formData.brand,
+    formData.model,
+    formData.ram,
+    formData.storageSize,
+    formData.storageType,
+  ]);
+
     const calculateValue = async () => {
       // Only calculate if we have minimum required fields
-      if (!formData.brand || !formData.model || !formData.ram) {
-        setEstimatedValue(0);
-        setCalculationBreakdown(null);
+      if (!formData.brand || !formData.model || !formData.ram || !formData.storageSize || !formData.purchaseYear || !formData.storageType) {
+        toast.error(         "Please fill in all required fields (Brand, Model, Storage, RAM, Phone Age");
         return;
+
       }
 
       setIsCalculating(true);
@@ -241,40 +255,43 @@ const ComputersPage: React.FC = () => {
         );
 
         if (response.success) {
-          setEstimatedValue(response.estimatedValue || 0);
-          setCalculationBreakdown(response.breakdown);
+          console.log(response);
+          const calculatedValue = response.data?.estimatedValue || response.estimatedValue || 0;
+          const breakdown = response.data?.breakdown || response.breakdown;
+          setEstimatedValue(calculatedValue);
+          setCalculationBreakdown(breakdown);
+          setHascCalculated(true);
+
+          if (calculatedValue > 0) {
+            toast.success( `Your computer is estimated to be worth ${formatPrice(calculatedValue)}!`, { duration: 5000,});
+          } else {
+            toast.error(            "Unable to calculate value. Please check your device details."
+            );
+          }
         } else {
           console.error("Calculation failed:", response.error);
+          toast.error("Failed to calculate trade-in value. Please try again.");
         }
       } catch (error) {
         console.error("Error calculating value:", error);
+         toast.error(
+        "An error occurred while calculating the value. Please try again."
+      );
       } finally {
         setIsCalculating(false);
       }
     };
 
     // Debounce the calculation
-    const timeoutId = setTimeout(calculateValue, 500);
-    return () => clearTimeout(timeoutId);
-  }, [formData, token]);
+  //   const timeoutId = setTimeout(calculateValue, 500);
+  //   return () => clearTimeout(timeoutId);
+  // }, [formData, token]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (estimatedValue === 0) {
-      toast.error("Please fill in the required fields to get an estimate");
-      return;
-    }
-
-    toast.success(
-      `Your computer is estimated to be worth ₦${estimatedValue.toLocaleString()}!`,
-      {
-        duration: 5000,
-      }
-    );
-
-    // You can add additional logic here like saving to database or redirecting
-  };
+   const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      alert("hi");
+      await calculateValue();
+    };
 
   const itemsPerPage = 3;
   const endIndex = startIndex + itemsPerPage;
@@ -307,13 +324,22 @@ const ComputersPage: React.FC = () => {
     }).format(price);
   };
 
+  const getEstimateDisplayText = () => {
+    if (isCalculating) return "Calculating...";
+    if (hasCalculated && estimatedValue > 0) return formatPrice(estimatedValue);
+    if (hasCalculated && estimatedValue === 0) return "Unable to estimate";
+    return "Click 'Get Final Estimate' to calculate";
+  };
+
   return (
     <div className="container mx-auto my-8 px-4">
       <Toaster />
       <h2 className="mb-8 p-3 text-center text-2xl font-bold text-white bg-green-700 rounded-md">
         Computers Trade-In Calculator
       </h2>
-      <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-8">
+      <form onSubmit={handleSubmit} >
+                <div className="flex flex-col md:flex-row gap-8">
+
         {/* Trade-in form */}
         <div className="w-full md:w-8/12 lg:w-3/4">
           <TradeInForm
@@ -350,22 +376,27 @@ const ComputersPage: React.FC = () => {
                   <span className="text-sm">Calculating...</span>
                 </div>
               ) : (
-                <span className="text-lg font-bold text-green-600">
-                  {estimatedValue > 0
-                    ? formatPrice(estimatedValue)
-                    : "Fill form to see estimate"}
+                <span
+                  className={`text-lg font-bold ${
+                    hasCalculated && estimatedValue > 0
+                      ? "text-green-600"
+                      : "text-gray-600"
+                  }`}
+                >
+                  {getEstimateDisplayText()}
                 </span>
               )}
             </div>
 
-            {calculationBreakdown && (
+            {calculationBreakdown && hasCalculated && (
               <div className="mt-4 p-3 bg-blue-50 rounded-md">
                 <h5 className="text-sm font-semibold text-blue-800 mb-2">
                   Calculation Breakdown
                 </h5>
                 <div className="text-xs text-blue-700 space-y-1">
                   <div>
-                    Base Value: {formatPrice(calculationBreakdown.baseValue)}
+                    Base Value:{" "}
+                    {formatPrice(calculationBreakdown.baseValue || 0)}
                   </div>
                   {calculationBreakdown.conditionMultiplier && (
                     <div>
@@ -377,7 +408,10 @@ const ComputersPage: React.FC = () => {
                     </div>
                   )}
                   <div className="font-semibold border-t pt-1">
-                    Final Value: {formatPrice(calculationBreakdown.finalValue)}
+                    Final Value:{" "}
+                    {formatPrice(
+                      calculationBreakdown.finalValue || estimatedValue
+                    )}
                   </div>
                 </div>
               </div>
@@ -393,108 +427,110 @@ const ComputersPage: React.FC = () => {
             </Link>
           </div>
         </div>
+        </div>
+
+        {/* Bottom section */}
+        <div className="mt-12 flex flex-col md:flex-row gap-8">
+          {/* Additional details */}
+          <div className="w-full md:w-6/12 lg:w-1/2">
+            <h3 className="mb-6 text-xl font-bold text-gray-800">
+              Additional Details
+            </h3>
+            <AdditionalDetails formData={formData} onChange={handleChange} />
+
+            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-gray-700">
+                <strong className="font-bold text-yellow-800">
+                  Important Notice:
+                </strong>{" "}
+                This trade-in estimate is preliminary and subject to change
+                after physical evaluation by our technicians. Final value
+                depends on actual device condition, functionality, and market
+                demand. We do not accept stolen or counterfeit devices.
+              </p>
+            </div>
+
+            <div className="space-y-3 mt-6">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="dataWiped"
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="dataWiped"
+                  className="ml-2 block text-sm text-gray-900"
+                >
+                  I confirm all personal data has been backed up and will be
+                  wiped from the device
+                </label>
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="devicePackaged"
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="devicePackaged"
+                  className="ml-2 block text-sm text-gray-900"
+                >
+                  Device will be safely packaged to avoid transit damage
+                </label>
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="finalInspection"
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="finalInspection"
+                  className="ml-2 block text-sm text-gray-900"
+                >
+                  I understand final trade-in value will be determined after
+                  physical inspection
+                </label>
+              </div>
+            </div>
+            <button
+              type="submit"
+              disabled={isCalculating}
+              className="bg-green-600 text-white px-6 py-3 my-3 rounded-md font-semibold hover:bg-green-700 transition duration-200 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isCalculating ? "Calculating..." : "Get Final Estimate"}
+            </button>
+          </div>
+
+          {/* Recently uploaded */}
+          <div className="w-full md:w-6/12 lg:w-1/2">
+            <h3 className="mb-6 text-xl font-bold text-gray-800">
+              Recently Listed Computers
+            </h3>
+            <RecentlyUploadedProducts products={currentItems} />
+            <div className="flex justify-between mt-4">
+              <button
+                disabled={isPrevDisabled}
+                onClick={handlePrev}
+                className="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                Previous
+              </button>
+              <span className="px-3 py-1 text-sm text-gray-600">
+                {Math.floor(startIndex / itemsPerPage) + 1} of{" "}
+                {Math.ceil(recentlyUploaded.length / itemsPerPage)}
+              </span>
+              <button
+                disabled={isNextDisabled}
+                onClick={handleNext}
+                className="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
       </form>
-
-      {/* Bottom section */}
-      <div className="mt-12 flex flex-col md:flex-row gap-8">
-        {/* Additional details */}
-        <div className="w-full md:w-6/12 lg:w-1/2">
-          <h3 className="mb-6 text-xl font-bold text-gray-800">
-            Additional Details
-          </h3>
-          <AdditionalDetails formData={formData} onChange={handleChange} />
-
-          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-gray-700">
-              <strong className="font-bold text-yellow-800">
-                Important Notice:
-              </strong>{" "}
-              This trade-in estimate is preliminary and subject to change after
-              physical evaluation by our technicians. Final value depends on
-              actual device condition, functionality, and market demand. We do
-              not accept stolen or counterfeit devices.
-            </p>
-          </div>
-
-          <div className="space-y-3 mt-6">
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="dataWiped"
-                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-              />
-              <label
-                htmlFor="dataWiped"
-                className="ml-2 block text-sm text-gray-900"
-              >
-                I confirm all personal data has been backed up and will be wiped
-                from the device
-              </label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="devicePackaged"
-                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-              />
-              <label
-                htmlFor="devicePackaged"
-                className="ml-2 block text-sm text-gray-900"
-              >
-                Device will be safely packaged to avoid transit damage
-              </label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="finalInspection"
-                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-              />
-              <label
-                htmlFor="finalInspection"
-                className="ml-2 block text-sm text-gray-900"
-              >
-                I understand final trade-in value will be determined after
-                physical inspection
-              </label>
-            </div>
-          </div>
-          <button
-            type="submit"
-            className="bg-green-600 text-white px-6 py-3 my-3 rounded-md font-semibold hover:bg-green-700 transition duration-200 mt-4"
-          >
-            Get Final Estimate
-          </button>
-        </div>
-
-        {/* Recently uploaded */}
-        <div className="w-full md:w-6/12 lg:w-1/2">
-          <h3 className="mb-6 text-xl font-bold text-gray-800">
-            Recently Listed Computers
-          </h3>
-          <RecentlyUploadedProducts products={currentItems} />
-          <div className="flex justify-between mt-4">
-            <button
-              disabled={isPrevDisabled}
-              onClick={handlePrev}
-              className="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-            >
-              Previous
-            </button>
-            <span className="px-3 py-1 text-sm text-gray-600">
-              {Math.floor(startIndex / itemsPerPage) + 1} of{" "}
-              {Math.ceil(recentlyUploaded.length / itemsPerPage)}
-            </span>
-            <button
-              disabled={isNextDisabled}
-              onClick={handleNext}
-              className="px-3 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

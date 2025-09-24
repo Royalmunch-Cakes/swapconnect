@@ -77,13 +77,12 @@ function Page() {
       formData.append('stock', String(Number(form.stock)));
 
       // Append the image file with the correct field name
-      formData.append('image', imageFile); // Changed from "file" to "image"
+      formData.append('file', imageFile);
 
       const res = await fetch(`${API_URL}/api/products`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
-          // Don't set Content-Type header for FormData - browser will set it automatically with boundary
         },
         body: formData,
       });
@@ -314,7 +313,7 @@ function Page() {
                 type="file"
                 // id="deviceImage"
                 // value={form.file}
-                name="image"
+                name="file"
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
                     setImageFile(e.target.files[0]);
