@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 const socialLinks = [
   { icon: "fab fa-twitter", href: "#" },
@@ -23,25 +24,26 @@ const quickLinks = [
 ];
 
 const categories = [
-  { href: "/category/apple", label: "Apple" },
-  { href: "/category/speakers", label: "Speakers" },
-  { href: "/category/handband", label: "Handbands" },
-  { href: "/category/mouse", label: "Mouse" },
-  { href: "/category/mobile", label: "Mobile" },
-  { href: "/category/macbook", label: "MacBooks" },
+  { href: "/category/ios", label: "iOS" },
+  { href: "/category/bluetooth", label: "Bluetooths" },
+  { href: "/category/watches", label: "Watches" },
+  { href: "/category/accessories", label: "Accessories" },
+  { href: "/category/androids", label: "Androids" },
+  { href: "/category/laptops", label: "Laptops" },
 ];
 
 const Footer: React.FC = () => {
+  const [email, setEmail] = useState("");
   const getCurrentYear = () => new Date().getFullYear();
 
   const router = useRouter();
   const pathname = usePathname();
 
   const handleClick = () => {
-    if (pathname === '/') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (pathname === "/") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
-      router.push('/');
+      router.push("/");
     }
   };
 
@@ -128,7 +130,13 @@ const Footer: React.FC = () => {
               className="flex flex-col"
               onSubmit={(e) => {
                 e.preventDefault();
-                // handle subscribe
+                if (!email) {
+                  toast.error("Please enter a valid email address.");
+                  return;
+                }
+                toast.success("Subscribed successfully! 🎉");
+                setEmail("");
+                // You can add API call here to actually subscribe the user
               }}
             >
               <div className="flex">
@@ -137,6 +145,8 @@ const Footer: React.FC = () => {
                   placeholder="Enter email"
                   className="bg-gray-300 rounded-l-full px-4 py-2 flex-1 outline-none border-none"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
                 <button
                   type="submit"

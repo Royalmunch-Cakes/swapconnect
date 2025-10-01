@@ -252,7 +252,7 @@ const ComputersPage: React.FC = () => {
       };
 
       // if (!token) {
-      //   return;
+      // return;
       // }
       const response: any = await api.post(
         "/api/bid/calculator",
@@ -296,15 +296,15 @@ const ComputersPage: React.FC = () => {
   };
 
   // Debounce the calculation
-  //   const timeoutId = setTimeout(calculateValue, 500);
-  //   return () => clearTimeout(timeoutId);
+  // const timeoutId = setTimeout(calculateValue, 500);
+  // return () => clearTimeout(timeoutId);
   // }, [formData, token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // if (!token) {
-    //   toast.error("Please log in to get final estimate.", { duration: 3000,});
-    //   return;
+    // toast.error("Please log in to get final estimate.", { duration: 3000,});
+    // return;
     // }
     toast.success("estimating value, please wait...", { duration: 2000 });
     // console.log("Form submitted with data:", formData);
